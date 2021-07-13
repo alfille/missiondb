@@ -63,5 +63,27 @@ Dr. Gennadiy Fuzaylov, a pediatric anesthesiologist at Massachusetts General Hos
   * pictures
   
 So there is a light relational database on top of the data
+
+# Installation
+* Instructions from [pouchdb](https://pouchdb.com/guides/setup-couchdb.html):
+```
+#install couchdb
+sudo apt install couchdb
+
+#start couchdb
+sudo systemctl start couchdb
+
+#test
+curl localhost:598
+
+# add [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+sudo npm install -g add-cors-to-couchdb
+add-cors-to-couchdb
+
+# PouchDB
+sudo npm install --save pouchdb
+
+```
+
   
 
