@@ -81,7 +81,7 @@ sudo npm install -g add-cors-to-couchdb
 add-cors-to-couchdb
 
 # PouchDB
-sudo npm install --save pouchdb
+sudo npm install --save pouchdb-browser
 
 ```
 
