@@ -23,7 +23,13 @@ button {
 body {
   font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.4em;
+  /*
   background: #eaeaea url('bg.png');
+  */
+  background: #8C9BFB;
+  background: -moz-linear-gradient(top, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
+  background: -webkit-linear-gradient(top, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
+  background: linear-gradient(to bottom, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
   color: #4d4d4d;
   width: 550px;
   margin: 0 auto;
@@ -43,7 +49,7 @@ body {
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2),
-				0 25px 50px 0 rgba(0, 0, 0, 0.15);
+        0 25px 50px 0 rgba(0, 0, 0, 0.15);
 }
 
 #todoapp:before {
