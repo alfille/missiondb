@@ -4,15 +4,16 @@
   "description": "Medical mission database software",
   "main": "index.js",
   "dependencies": {
-    "pouchdb-browser": "^7.2.2"
+    "pouchdb-browser": "^7.2.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/alfille/missiondb.git"
+    "url": "git+https://github.com/alfille/missiondb.git"
   },
   "keywords": [
     "Medicial",
