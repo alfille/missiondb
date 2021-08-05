@@ -83,6 +83,10 @@ add-cors-to-couchdb
 # PouchDB
 sudo npm install --save pouchdb-browser
 
+# react,js
+Instructions from https://medium.com/@kayodeniyi/simplest-react-app-setup-a74277b99e43
+
+
 ```
 
   

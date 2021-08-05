@@ -27,5 +27,11 @@
   "bugs": {
     "url": "https://github.com/alfille/missiondb/issues"
   },
-  "homepage": "https://github.com/alfille/missiondb"
+  "homepage": "https://github.com/alfille/missiondb",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^8.2.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1"
+  }
 }
