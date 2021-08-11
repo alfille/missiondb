@@ -4,7 +4,9 @@
 Database for medical mission work. Intentionally simple. Multiuser but phone/laptop based and robust in disconnected environments.
 
 ## Inspiration
-Dr. Gennadiy Fuzaylov, a pediatric anesthesiologist at Massachusetts General Hospital and veteran of over 60 medical missions to the Ukraine, Columbia and found keeping track of patients, procedures and results was increasingly difficult. A spreadsheet was not adaquate -- poor phone interface, poor support for images, poorly multiuser and problematic security. Hence this project was born.
+Dr. Gennadiy Fuzaylov, a pediatric anesthesiologist at Massachusetts General Hospital and veteran of over 60 medical missions to the Ukraine, Columbia and found keeping track of patients, procedures and results was increasingly difficult. 
+[![Doctors Collaborating To Help Children][images/dctohc.png]](https://www.dctohc.org)
+A spreadsheet was not adequate -- poor phone interface, poor support for images, poorly multiuser and problematic security. Hence this project was born.
 
 ## Scope
 ### In scope
