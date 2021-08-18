@@ -1,6 +1,12 @@
 class MyList extends React.Component {
+  constructor(props) {
+	  super(props);
+	  this.state = {
+		 patient_list: ['smith','jones']
+	  }
+  } 
   render() {
-    var lis = this.props.data.map(function(text, idx){
+    var lis = this.state.patient_list.map(function(text, idx){
       return <li key={idx}>{text}</li>
     })
     return (
