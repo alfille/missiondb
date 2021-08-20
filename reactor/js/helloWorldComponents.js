@@ -20,7 +20,7 @@ class MyList extends React.Component {
 class HelloWorldBanner extends React.Component {
   render(){
     return (
-      <div>
+      <div class="menu">
         <h1>Hello World</h1>
         <MyList data={['Hi', 'I am', 'Shing Lyu']}></MyList>
       </div>
