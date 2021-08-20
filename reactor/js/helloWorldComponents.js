@@ -17,6 +17,24 @@ class MyList extends React.Component {
   }
 }
 
+class Button extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {isToggleOn: true };
+		this.handleClick = this.handleClick.bind(this);
+	}
+	
+	handleClick() {
+		this.setState(oldState => ({
+			isToggleOn: !oldState.isToggleOn
+		})) ;
+	}
+	
+	render() {
+		return (
+		<button onClick={this.handleClick}>
+			
+
 class HelloWorldBanner extends React.Component {
   render(){
     return (
