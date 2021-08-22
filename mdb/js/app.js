@@ -1,3 +1,13 @@
+var displayState = "none" ;
+
+function showPatientList() {
+  var x = document.getElementById("patientListSection") ;
+  if (x.style.display === "none") {
+    x.style.display = "block" ;
+  }
+  displayState = "PatientList" ;
+}
+
 (function() {
 
   'use strict';
@@ -128,7 +138,7 @@
     checkbox.addEventListener('change', checkboxChanged.bind(this, todo));
 
     var label = document.createElement('label');
-    label.appendChild( document.createTextNode(todo.title));
+    label.appendChild( document.createTextNode(getProp(todo,"title")));
     label.addEventListener('dblclick', todoDblClicked.bind(this, todo));
 
     var deleteLink = document.createElement('button');
@@ -160,6 +170,14 @@
 
     return li;
   }
+  
+  function getProp( obj, prop ) {
+    if (prop in obj ) {
+      return obj[prop] ;
+    } else {
+      return "Unknown" ;
+    }
+  }
 
   function redrawTodosUI(todos) {
     var ul = document.getElementById('todo-list');
@@ -188,3 +206,5 @@
   }
 
 })();
+
+  

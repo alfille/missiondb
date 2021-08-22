@@ -13,10 +13,10 @@
   <body>
     <section id="missiondbody">
       <header id="header">
-        <h1>Patient List</h1>
-        <input id="new-todo" placeholder="What needs to be done?" autofocus>
+        <h1>Mission Database</h1>
+        <input id="new-todo" placeholder="What needs to be done?" autofocus style="display:block">
       </header>
-      <section id="main">
+      <section id="patientListSection" style="display:none">
         <ul id="todo-list"></ul>
       </section>
       <footer id="footer">
@@ -28,6 +28,8 @@
       </footer>
     </section>
     <footer id="info">
+      <button name="patientListButton" type="button" class="footerbutton" onclick="showPatientList()">Patient List</button>
+      <button name="addButton" type="button" class="footerbutton" onclick="showPatientList()">Add</button>
       <p><a href="http://github.com/alfille/missiondb">Mission Database</a></p>
     </footer>
     <script src="//cdn.jsdelivr.net/pouchdb/3.0.2/pouchdb.min.js"></script>

@@ -20,6 +20,23 @@ button {
   appearance: none;
 }
 
+.footerbutton {
+  margin: 2px;
+  padding: 4px;
+  border: 4px;
+  background: #3366FF;
+  font-size: 22px;
+  vertical-align: baseline;
+  font-family: inherit;
+  color: white;
+  border-style: groove ;
+  -webkit-appearance: none;
+  /*-moz-appearance: none;*/
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+}
+
 body {
   font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.4em;
@@ -27,11 +44,13 @@ body {
   background: #eaeaea url('bg.png');
   */
   background: #8C9BFB;
+  /*
   background: -moz-linear-gradient(top, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
   background: -webkit-linear-gradient(top, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
   background: linear-gradient(to bottom, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
+  */
   color: #4d4d4d;
-  width: 550px;
+  width: 100%;
   margin: 0 auto;
   -webkit-font-smoothing: antialiased;
   -moz-font-smoothing: antialiased;
@@ -41,9 +60,10 @@ body {
 }
 
 #missiondbody {
+  display: grid ;
   background: #fff;
   background: rgba(255, 255, 255, 0.9);
-  margin: 130px 0 40px 0;
+  margin: 100px 0 0 0;
   border: 1px solid #ccc;
   position: relative;
   border-top-left-radius: 2px;
@@ -149,7 +169,7 @@ body {
   box-shadow: none;
 }
 
-#main {
+#patientListSection {
   position: relative;
   z-index: 2;
   border-top: 1px dotted #adadad;
