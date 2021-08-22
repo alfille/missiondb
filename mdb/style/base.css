@@ -40,7 +40,7 @@ body {
   font-smoothing: antialiased;
 }
 
-#todoapp {
+#missiondbody {
   background: #fff;
   background: rgba(255, 255, 255, 0.9);
   margin: 130px 0 40px 0;
@@ -52,7 +52,7 @@ body {
         0 25px 50px 0 rgba(0, 0, 0, 0.15);
 }
 
-#todoapp:before {
+#missiondbody:before {
   content: '';
   border-left: 1px solid #f5d6d6;
   border-right: 1px solid #f5d6d6;
@@ -63,16 +63,16 @@ body {
   height: 100%;
 }
 
-#todoapp input::-webkit-input-placeholder {
+#missiondbody input::-webkit-input-placeholder {
   font-style: italic;
 }
 
-#todoapp input:-moz-placeholder {
+#missiondbody input:-moz-placeholder {
   font-style: italic;
   color: #a9a9a9;
 }
 
-#todoapp h1 {
+#missiondbody h1 {
   position: absolute;
   top: -120px;
   width: 100%;
