@@ -26,10 +26,10 @@
     title: text,
     completed: false
   };
-  db.put(todo, function callback(err, result) {
-    if (!err) {
+  db.put(todo).then(function() {
       console.log('Successfully posted a todo!');
-    }
+  }).catch( function(err) {
+    console.log(err);
   });
   }
   
@@ -49,19 +49,19 @@
     }).catch(function(err){
       console.log(err)
     })
-  db.put(des, function callback(err, result) {
-    if (!err) {
+  db.put(des).then( function () {
       console.log('Successfully posted a design!');
-    } else {
+    }).catch( function(err) {
       console.log('Unuccessfully posted a design!');
-    }
   });
   }
   
   // Show the current list of todos by reading them from the database
   function showTodos() {
-    db.allDocs({include_docs: true, descending: true}, function(err, doc) {
+    db.allDocs({include_docs: true, descending: true}).then( function(doc) {
       redrawTodosUI(doc.rows);
+    }).catch( function(err) {
+      console.log(err);
     });
   }
 
