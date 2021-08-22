@@ -1,11 +1,15 @@
 var displayState = "none" ;
 
 function showPatientList() {
-  var x = document.getElementById("patientListSection") ;
-  if (x.style.display === "none") {
+  var x = document.getElementById("patientListDiv") ;
+  console.log(x.style.display);
+  console.log(x.style);
+  console.log(x);
+  if (x.style.display !== "block") {
     x.style.display = "block" ;
   }
   displayState = "PatientList" ;
+  console.log(x.style.display);
 }
 
 (function() {
@@ -175,7 +179,7 @@ function showPatientList() {
     if (prop in obj ) {
       return obj[prop] ;
     } else {
-      return "Unknown" ;
+      return prop+"?" ;
     }
   }
 
