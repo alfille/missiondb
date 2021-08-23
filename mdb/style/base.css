@@ -136,7 +136,7 @@ body {
   border-top-right-radius: 1px;
 }
 
-#new-todo,
+#new-field,
 .edit {
   position: relative;
   margin: 0;
@@ -162,7 +162,7 @@ body {
   font-smoothing: antialiased;
 }
 
-#new-todo {
+#new-field {
   padding: 16px 16px 16px 60px;
   border: none;
   background: rgba(0, 0, 0, 0.02);
@@ -206,39 +206,39 @@ label[for='toggle-all'] {
   color: #737373;
 }
 
-#todo-list {
+#patient-list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-#todo-list li {
+#patient-list li {
   position: relative;
   font-size: 24px;
   border-bottom: 1px dotted #ccc;
 }
 
-#todo-list li:last-child {
+#patient-list li:last-child {
   border-bottom: none;
 }
 
-#todo-list li.editing {
+#patient-list li.editing {
   border-bottom: none;
   padding: 0;
 }
 
-#todo-list li.editing .edit {
+#patient-list li.editing .edit {
   display: block;
   width: 506px;
   padding: 13px 17px 12px 17px;
   margin: 0 0 0 43px;
 }
 
-#todo-list li.editing .view {
+#patient-list li.editing .view {
   display: none;
 }
 
-#todo-list li .toggle {
+#patient-list li .toggle {
   text-align: center;
   width: 40px;
   /* auto, since non-WebKit browsers doesn't support input styling */
@@ -255,7 +255,7 @@ label[for='toggle-all'] {
   appearance: none;
 }
 
-#todo-list li .toggle:after {
+#patient-list li .toggle:after {
   content: '✔';
   line-height: 43px; /* 40 + a couple of pixels visual adjustment */
   font-size: 20px;
@@ -263,14 +263,14 @@ label[for='toggle-all'] {
   text-shadow: 0 -1px 0 #bfbfbf;
 }
 
-#todo-list li .toggle:checked:after {
+#patient-list li .toggle:checked:after {
   color: #85ada7;
   text-shadow: 0 1px 0 #669991;
   bottom: 1px;
   position: relative;
 }
 
-#todo-list li label {
+#patient-list li label {
   word-break: break-word;
   padding: 15px;
   margin-left: 45px;
@@ -283,12 +283,12 @@ label[for='toggle-all'] {
   transition: color 0.4s;
 }
 
-#todo-list li.completed label {
+#patient-list li.completed label {
   color: #a9a9a9;
   text-decoration: line-through;
 }
 
-#todo-list li .destroy {
+#patient-list li .destroy {
   display: none;
   position: absolute;
   top: 0;
@@ -306,7 +306,7 @@ label[for='toggle-all'] {
   transition: all 0.2s;
 }
 
-#todo-list li .destroy:hover {
+#patient-list li .destroy:hover {
   text-shadow: 0 0 1px #000, 0 0 10px rgba(199, 107, 107, 0.8);
   -webkit-transform: scale(1.3);
   -moz-transform: scale(1.3);
@@ -315,19 +315,19 @@ label[for='toggle-all'] {
   transform: scale(1.3);
 }
 
-#todo-list li .destroy:after {
+#patient-list li .destroy:after {
   content: '✖';
 }
 
-#todo-list li:hover .destroy {
+#patient-list li:hover .destroy {
   display: block;
 }
 
-#todo-list li .edit {
+#patient-list li .edit {
   display: none;
 }
 
-#todo-list li.editing:last-child {
+#patient-list li.editing:last-child {
   margin-bottom: -1px;
 }
 
@@ -420,11 +420,11 @@ label[for='toggle-all'] {
 */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   #toggle-all,
-  #todo-list li .toggle {
+  #patient-list li .toggle {
     background: none;
   }
 
-  #todo-list li .toggle {
+  #patient-list li .toggle {
     height: 40px;
   }
 

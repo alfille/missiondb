@@ -2,14 +2,10 @@ var displayState = "none" ;
 
 function showPatientList() {
   var x = document.getElementById("patientListDiv") ;
-  console.log(x.style.display);
-  console.log(x.style);
-  console.log(x);
   if (x.style.display !== "block") {
     x.style.display = "block" ;
   }
   displayState = "PatientList" ;
-  console.log(x.style.display);
 }
 
 (function() {
@@ -17,13 +13,14 @@ function showPatientList() {
   'use strict';
 
   var ENTER_KEY = 13;
-  var newTodoDom = document.getElementById('new-todo');
+  var newTodoDom = document.getElementById('new-field');
   var syncDom = document.getElementById('sync-wrapper');
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
 
   var db = new PouchDB('todos') ;
-  // console.log(db.adapter); // prints 'idb'
+  console.log(db.adapter); // prints 'idb'
+  console.log(db); // prints 'idb'
   var remoteCouch = 'http://localhost:5984/todos';
 
   db.changes({
@@ -104,9 +101,22 @@ function showPatientList() {
   // Initialise a sync with the remote server
   function sync() {
     syncDom.setAttribute('data-sync-state', 'syncing');
-    var opts = {live: true, retry:true};
-    db.sync(remoteCouch, opts)
-    .on('error',syncError);
+    db.sync( remoteCouch, {
+		live: true,
+		retry: true
+	}).on('change', function(info) {
+		syncDom.setAttribute('data-sync-state', 'c');
+	}).on('paused', function(err) {
+		syncDom.setAttribute('data-sync-state', 'p');
+	}).on('active', function() {
+		syncDom.setAttribute('data-sync-state', 'a');
+	}).on('denied', function(err) {
+		syncDom.setAttribute('data-sync-state', 'd');
+	}).on('complete', function(info) {
+		syncDom.setAttribute('data-sync-state', '!');
+	}).on('error', function(err) {
+		syncDom.setAttribute('data-sync-state', 'Error');
+	});
   }
 
   // EDITING STARTS HERE (you dont need to edit anything below this line)
@@ -184,7 +194,7 @@ function showPatientList() {
   }
 
   function redrawTodosUI(todos) {
-    var ul = document.getElementById('todo-list');
+    var ul = document.getElementById('patient-list');
     ul.innerHTML = '';
     todos.forEach(function(todo) {
       ul.appendChild(createTodoListItem(todo.doc));
