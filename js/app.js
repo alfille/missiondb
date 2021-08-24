@@ -8,56 +8,30 @@
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
 
-  var db = new PouchDB('todos') ;
-  // console.log(db.adapter); // prints 'idb'
-  var remoteCouch = 'http://localhost:5984/todos';
+  var db = new PouchDB('todos');
+
+  // Replace with remote instance, this just replicates to another local instance.
+  var remoteCouch = 'todos_remote';
 
   db.changes({
     since: 'now',
     live: true
   }).on('change', showTodos);
-  
-  designDoc()
 
   // We have to create a new todo document and enter it in the database
   function addTodo(text) {
-  var todo = {
-    _id: new Date().toISOString(),
-    title: text,
-    completed: false
-  };
-  db.put(todo, function callback(err, result) {
-    if (!err) {
-      console.log('Successfully posted a todo!');
-    }
-  });
-  }
-  
-  // Design document
-  function designDoc() {
-  var desname = "_design/alpha"
-  var des = {
-    _id: desname,
-    views: {
-      text: {
-        map: 'function(doc){ emit(doc.title,doc._id) }'
+    var todo = {
+      _id: new Date().toISOString(),
+      title: text,
+      completed: false
+    };
+    db.put(todo, function callback(err, result) {
+      if (!err) {
+        console.log('Successfully posted a todo!');
       }
-    }
-  };
-  db.get(desname).then(function(doc){
-    db.remove(doc)
-    }).catch(function(err){
-      console.log(err)
-    })
-  db.put(des, function callback(err, result) {
-    if (!err) {
-      console.log('Successfully posted a design!');
-    } else {
-      console.log('Unuccessfully posted a design!');
-    }
-  });
+    });
   }
-  
+
   // Show the current list of todos by reading them from the database
   function showTodos() {
     db.allDocs({include_docs: true, descending: true}, function(err, doc) {
@@ -85,14 +59,14 @@
       todo.title = trimmedText;
       db.put(todo);
     }
- }
+  }
 
   // Initialise a sync with the remote server
   function sync() {
     syncDom.setAttribute('data-sync-state', 'syncing');
-    var opts = {live: true, retry:true};
-    db.sync(remoteCouch, opts)
-    .on('error',syncError);
+    var opts = {live: true};
+    db.replicate.to(remoteCouch, opts, syncError);
+    db.replicate.from(remoteCouch, opts, syncError);
   }
 
   // EDITING STARTS HERE (you dont need to edit anything below this line)
