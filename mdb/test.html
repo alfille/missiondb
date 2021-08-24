@@ -54,6 +54,37 @@ from https://javascript.info/task/sortable-table
       </tr>
     </tbody>
   </table>
+  
+  <table id="grid2">
+    <thead>
+      <tr>
+        <th data-type="number">Age</th>
+        <th data-type="string">Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>5</td>
+        <td>John</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Pete</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Ann</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Eugene</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Ilya</td>
+      </tr>
+    </tbody>
+  </table>
 
   <script>
 
@@ -103,6 +134,75 @@ from https://javascript.info/task/sortable-table
 
       tbody.append(...rowsArray);
     }
+    
+  class sortTable {
+      dir = 1 ;
+      lastth = -1 ;
+      constructor(tname) {
+        console.log('test');
+        console.log(this.dir) ;
+        this.dir = dir ;
+        this.lastth = lastth ;
+        this.tname = tname ;
+        console.log(tname);
+        console.log(this.tname);
+        console.log(this);
+        tname.onclick = this.sortClick2.bind(this) ;
+        
+      }
+
+    sortClick2(e) {
+      console.log("click2") ;
+      console.log(this);
+      console.log(e) ;
+      if (e.target.tagName != 'TH') return;
+
+      let th = e.target;
+      if ( th.cellIndex == this.lastth ) {
+        this.dir = -this.dir ;
+      } else {
+        this.dir = 1;
+        this.lastth = th.cellIndex
+      }
+      // if TH, then sort
+      // cellIndex is the number of th:
+      //   0 for the first column
+      //   1 for the second column, etc
+      this.sortGrid2(th.cellIndex, th.dataset.type);
+    };
+
+    sortGrid2(colNum, type) {
+      console.log("sort2") ;
+      console.log(this);
+      let tbody = this.tname.querySelector('tbody');
+
+      let rowsArray = Array.from(tbody.rows);
+
+      // compare(a, b) compares two rows, need for sorting
+      let dir = this.dir ;
+      let compare;
+
+      switch (type) {
+        case 'number':
+          compare = function(rowA, rowB) {
+            console.log(rowA.cells[colNum].innerHTML);
+            return (rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML) * dir;
+          };
+          break;
+        case 'string':
+          compare = function(rowA, rowB) {
+            return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? dir : -dir;
+          };
+          break;
+      }
+      
+      // sort
+      rowsArray.sort(compare);
+
+      tbody.append(...rowsArray);
+    }
+  }
+    var t2 = new sortTable(grid2) ;
   </script>
 
 </body>
