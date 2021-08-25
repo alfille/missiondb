@@ -188,30 +188,12 @@
 
       tbody.append(...rowsArray);
     }
+    
+    delete () {
+		this.tname.parentNode.removeChild(this.tname) ;
+	} 
   }
-function tableCreate(){
-    var body = document.body,
-        tbl  = document.createElement('table');
-    tbl.style.width  = '100px';
-    tbl.style.border = '1px solid black';
 
-    for(var i = 0; i < 3; i++){
-        var tr = tbl.insertRow();
-        for(var j = 0; j < 2; j++){
-            if(i == 2 && j == 1){
-                break;
-            } else {
-                var td = tr.insertCell();
-                td.appendChild(document.createTextNode('Cell'));
-                td.style.border = '1px solid black';
-                if(i == 1 && j == 1){
-                    td.setAttribute('rowSpan', '2');
-                }
-            }
-        }
-    }
-    body.appendChild(tbl);
-}
   class dataTable extends sortTable {
     constructor( idname, collist ) {
 
@@ -224,17 +206,21 @@ function tableCreate(){
         //row.insertCell(i).appendChild( document.createTextNode(v)) ;
         row.insertCell(i).outerHTML='<th>'+v+'</th>' ;
       } );
+      let tbody = document.createElement('tbody');
+      tbl.appendChild(tbody) ;
       body.appendChild(tbl) ;
       super(tbl) ;
       this.collist = collist ;
     }
   }
-    var t2 = new sortTable(grid) ;
+    var t1 = new sortTable(grid) ;
     var t2 = new sortTable(grid2) ;
     t2.resort()
     var t3 = new dataTable( "grid3", ["ID","Last", "First", "Age"] ) ;
     console.log(t3);
     console.log(grid3);
+    t2.delete();
+    t2 = new dataTable(grid,["ID","First"])
   </script>
 
 </body>

@@ -88,24 +88,42 @@ function showPatientList() {
 
       tbody.append(...rowsArray);
     }
+
+    delete () {
+		this.tname.parentNode.removeChild(this.tname) ;
+	} 
   }
 
   class dataTable extends sortTable {
-    constructor( idname, collist ) {
-
-      let body = document.body ;
+    constructor( idname, parent, collist ) {
+	  if ( parent == none ) {
+		  parent = document.body ;
+	  }
+      
       let tbl = document.createElement('table') ;
       tbl.setAttribute( "id", idname ) ;
+      // Table Head
       let header = tbl.createTHead() ;
       let row = header.insertRow(0);
       collist.forEach( function(v,i,a) {
         //row.insertCell(i).appendChild( document.createTextNode(v)) ;
         row.insertCell(i).outerHTML='<th>'+v+'</th>' ;
       } );
-      body.appendChild(tbl) ;
+      // Table Body
+      let tbody = document.createElement('tbody');
+      tbl.appendChild(tbody) ;
+      parent.appendChild(tbl) ;
       super(tbl) ;
       this.collist = collist ;
     }
+    
+    fill( doclist ) {
+		// typically called with doc.rows from allDocs
+		let tbody = this.tname.querySelector('tbody') ;
+		tbody.innerHTML = "" ;
+		
+		doclist.forEach( function(doc) {
+			
   }
 
 
