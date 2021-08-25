@@ -8,6 +8,107 @@ function showPatientList() {
   displayState = "PatientList" ;
 }
 
+  class sortTable {
+    dir = 1 ;
+    lastth = -1 ;
+    constructor(tname) {
+      this.tname = tname ;
+      tname.onclick = this.allClick.bind(this) ;
+    }
+
+    allClick(e) {
+      if (e.target.tagName == 'TH') {
+        return this.sortClick(e) ;
+      }
+    };
+
+    resort() {
+      if ( this.lastth < 0 ) {
+        this.lastth = 0 ;
+        this.dir = 1 ;
+      }
+      this.sortGrid(this.lastth) ;
+    }
+
+    sortClick(e) {
+      let th = e.target;
+      if ( th.cellIndex == this.lastth ) {
+        this.dir = -this.dir ;
+      } else {
+        this.dir = 1;
+        this.lastth = th.cellIndex
+      }
+      // if TH, then sort
+      // cellIndex is the number of th:
+      //   0 for the first column
+      //   1 for the second column, etc
+      this.sortGrid(th.cellIndex);
+    };
+
+    sortGrid(colNum) {
+      let tbody = this.tname.querySelector('tbody');
+      if ( tbody == null ) {
+        // empty table
+        return ;
+      }
+
+      let rowsArray = Array.from(tbody.rows);
+            
+      let type = "number" ;
+      rowsArray.some( function(r) {
+        let c = r.cells[colNum].innerHTML ;
+        if ( c == "" ) {
+        } else if ( isNaN( Number(r.cells[colNum].innerHTML) ) ) {
+          type = "string" ;
+          return true ;
+        } else {
+          return true ;
+        }
+      } );
+
+      // compare(a, b) compares two rows, need for sorting
+      let dir = this.dir ;
+      let compare;
+
+      switch (type) {
+        case 'number':
+          compare = function(rowA, rowB) {
+            return (rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML) * dir;
+          };
+          break;
+        case 'string':
+          compare = function(rowA, rowB) {
+            return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? dir : -dir;
+          };
+          break;
+      }
+      
+      // sort
+      rowsArray.sort(compare);
+
+      tbody.append(...rowsArray);
+    }
+  }
+
+  class dataTable extends sortTable {
+    constructor( idname, collist ) {
+
+      let body = document.body ;
+      let tbl = document.createElement('table') ;
+      tbl.setAttribute( "id", idname ) ;
+      let header = tbl.createTHead() ;
+      let row = header.insertRow(0);
+      collist.forEach( function(v,i,a) {
+        //row.insertCell(i).appendChild( document.createTextNode(v)) ;
+        row.insertCell(i).outerHTML='<th>'+v+'</th>' ;
+      } );
+      body.appendChild(tbl) ;
+      super(tbl) ;
+      this.collist = collist ;
+    }
+  }
+
+
 (function() {
 
   'use strict';
@@ -102,21 +203,21 @@ function showPatientList() {
   function sync() {
     syncDom.setAttribute('data-sync-state', 'syncing');
     db.sync( remoteCouch, {
-		live: true,
-		retry: true
-	}).on('change', function(info) {
-		syncDom.setAttribute('data-sync-state', 'c');
-	}).on('paused', function(err) {
-		syncDom.setAttribute('data-sync-state', 'p');
-	}).on('active', function() {
-		syncDom.setAttribute('data-sync-state', 'a');
-	}).on('denied', function(err) {
-		syncDom.setAttribute('data-sync-state', 'd');
-	}).on('complete', function(info) {
-		syncDom.setAttribute('data-sync-state', '!');
-	}).on('error', function(err) {
-		syncDom.setAttribute('data-sync-state', 'Error');
-	});
+    live: true,
+    retry: true
+  }).on('change', function(info) {
+    syncDom.setAttribute('data-sync-state', 'c');
+  }).on('paused', function(err) {
+    syncDom.setAttribute('data-sync-state', 'p');
+  }).on('active', function() {
+    syncDom.setAttribute('data-sync-state', 'a');
+  }).on('denied', function(err) {
+    syncDom.setAttribute('data-sync-state', 'd');
+  }).on('complete', function(info) {
+    syncDom.setAttribute('data-sync-state', '!');
+  }).on('error', function(err) {
+    syncDom.setAttribute('data-sync-state', 'Error');
+  });
   }
 
   // EDITING STARTS HERE (you dont need to edit anything below this line)

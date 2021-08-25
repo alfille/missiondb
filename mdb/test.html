@@ -1,8 +1,6 @@
 <!DOCTYPE HTML>
 <html>
-/*
-from https://javascript.info/task/sortable-table
-*/
+<!--from https://javascript.info/task/sortable-table  --->
 <head>
   <meta charset="utf-8">
   <style>
@@ -36,9 +34,9 @@ from https://javascript.info/task/sortable-table
   <table id="grid">
     <thead>
       <tr>
-        <th data-type="number">ID</th>
-        <th data-type="number">Age</th>
-        <th data-type="string">Name</th>
+        <th>ID</th>
+        <th>Age</th>
+        <th>Name</th>
       </tr>
     </thead>
     <tbody>
@@ -73,9 +71,9 @@ from https://javascript.info/task/sortable-table
   <table id="grid2">
     <thead>
       <tr>
-        <th data-type="number">ID</th>
-        <th data-type="number">Age</th>
-        <th data-type="string">Name</th>
+        <th>ID</th>
+        <th>Age</th>
+        <th>Name</th>
       </tr>
     </thead>
     <tbody>
@@ -118,12 +116,18 @@ from https://javascript.info/task/sortable-table
     }
 
     allClick(e) {
-      console.log(e) ;
       if (e.target.tagName == 'TH') {
         return this.sortClick(e) ;
       }
-      console.log(e.target) ;
     };
+
+    resort() {
+      if ( this.lastth < 0 ) {
+        this.lastth = 0 ;
+        this.dir = 1 ;
+      }
+      this.sortGrid(this.lastth) ;
+    }
 
     sortClick(e) {
       let th = e.target;
@@ -137,13 +141,30 @@ from https://javascript.info/task/sortable-table
       // cellIndex is the number of th:
       //   0 for the first column
       //   1 for the second column, etc
-      this.sortGrid(th.cellIndex, th.dataset.type);
+      this.sortGrid(th.cellIndex);
     };
 
-    sortGrid(colNum, type) {
+    sortGrid(colNum) {
       let tbody = this.tname.querySelector('tbody');
 
+      if ( tbody == null ) {
+        // empty table
+        return ;
+      }
+      
       let rowsArray = Array.from(tbody.rows);
+      
+      let type = "number" ;
+      rowsArray.some( function(r) {
+        let c = r.cells[colNum].innerHTML ;
+        if ( c == "" ) {
+        } else if ( isNaN( Number(r.cells[colNum].innerHTML) ) ) {
+          type = "string" ;
+          return true ;
+        } else {
+          return true ;
+        }
+      } );
 
       // compare(a, b) compares two rows, need for sorting
       let dir = this.dir ;
@@ -168,8 +189,52 @@ from https://javascript.info/task/sortable-table
       tbody.append(...rowsArray);
     }
   }
+function tableCreate(){
+    var body = document.body,
+        tbl  = document.createElement('table');
+    tbl.style.width  = '100px';
+    tbl.style.border = '1px solid black';
+
+    for(var i = 0; i < 3; i++){
+        var tr = tbl.insertRow();
+        for(var j = 0; j < 2; j++){
+            if(i == 2 && j == 1){
+                break;
+            } else {
+                var td = tr.insertCell();
+                td.appendChild(document.createTextNode('Cell'));
+                td.style.border = '1px solid black';
+                if(i == 1 && j == 1){
+                    td.setAttribute('rowSpan', '2');
+                }
+            }
+        }
+    }
+    body.appendChild(tbl);
+}
+  class dataTable extends sortTable {
+    constructor( idname, collist ) {
+
+      let body = document.body ;
+      let tbl = document.createElement('table') ;
+      tbl.setAttribute( "id", idname ) ;
+      let header = tbl.createTHead() ;
+      let row = header.insertRow(0);
+      collist.forEach( function(v,i,a) {
+        //row.insertCell(i).appendChild( document.createTextNode(v)) ;
+        row.insertCell(i).outerHTML='<th>'+v+'</th>' ;
+      } );
+      body.appendChild(tbl) ;
+      super(tbl) ;
+      this.collist = collist ;
+    }
+  }
     var t2 = new sortTable(grid) ;
     var t2 = new sortTable(grid2) ;
+    t2.resort()
+    var t3 = new dataTable( "grid3", ["ID","Last", "First", "Age"] ) ;
+    console.log(t3);
+    console.log(grid3);
   </script>
 
 </body>
