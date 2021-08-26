@@ -122,8 +122,18 @@ function showPatientList() {
 		let tbody = this.tname.querySelector('tbody') ;
 		tbody.innerHTML = "" ;
 		
-		doclist.forEach( function(doc) {
-			
+		doclist.forEach( function(doc,n) {
+			let row = tbody.insertRow(n) ;
+			this.collist.forEach( function(colname,i) {
+				let c = row.insertCell(i) ;
+				if ( colname in doc ) {
+					c.innerHTML = doc[colname] ;
+				} else {
+					c.innerHTML = "" ;
+				}
+			}) ;
+		});
+	}
   }
 
 
