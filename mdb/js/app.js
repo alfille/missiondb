@@ -96,7 +96,7 @@ function showPatientList() {
 
   class dataTable extends sortTable {
     constructor( idname, parent, collist ) {
-	  if ( parent == none ) {
+	  if ( parent == null ) {
 		  parent = document.body ;
 	  }
       
@@ -115,6 +115,10 @@ function showPatientList() {
       parent.appendChild(tbl) ;
       super(tbl) ;
       this.collist = collist ;
+      console.log(fill);
+      this.fill = this.fill.bind(this) ;
+      console.log(fill);
+		
     }
     
     fill( doclist ) {
@@ -124,6 +128,7 @@ function showPatientList() {
 		
 		doclist.forEach( function(doc,n) {
 			let row = tbody.insertRow(n) ;
+			console.log(this);
 			this.collist.forEach( function(colname,i) {
 				let c = row.insertCell(i) ;
 				if ( colname in doc ) {
@@ -136,7 +141,9 @@ function showPatientList() {
 	}
   }
 
+var displayTable = new dataTable( "PatientTable", patientListDiv, ["ID", "title", "text", "revision","id" ] ) ;
 
+// Pouchdb routines
 (function() {
 
   'use strict';
@@ -199,6 +206,9 @@ function showPatientList() {
   // Show the current list of todos by reading them from the database
   function showTodos() {
     db.allDocs({include_docs: true, descending: true}).then( function(doc) {
+	  console.log(doc.rows);
+	  console.log(displayTable);
+	  displayTable.fill(doc.rows).bind(displayTable) ;
       redrawTodosUI(doc.rows);
     }).catch( function(err) {
       console.log(err);
