@@ -136,13 +136,14 @@ class dataTable extends sortTable {
     
     doclist.forEach( function(doc,n) {
       let row = tbody.insertRow(n) ;
+      let content = doc.doc ;
       if ( n%2 == 1 ) {
         row.classList.add('odd') ;
       }
       collist.forEach( function(colname,i) {
         let c = row.insertCell(i) ;
-        if ( colname in doc ) {
-          c.innerHTML = doc[colname] ;
+        if ( colname in content ) {
+          c.innerHTML = content[colname] ;
         } else {
           c.innerHTML = "" ;
         }
@@ -152,7 +153,7 @@ class dataTable extends sortTable {
   
   }
 
-var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", "revision","id" ] ) ;
+var displayTable = new dataTable( "PatientTable", null, ["_id", "title", "text", "revision","_id","_rev" ] ) ;
 
 // Pouchdb routines
 (function() {
@@ -165,15 +166,15 @@ var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", 
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
 
-  var db = new PouchDB('todos') ;
+  var db = new PouchDB('mdb') ;
   console.log(db.adapter); // prints 'idb'
   console.log(db); // prints 'idb'
-  var remoteCouch = 'http://localhost:5984/todos';
+  var remoteCouch = 'http://192.168.1.5:5984/mdb';
 
   db.changes({
     since: 'now',
     live: true
-  }).on('change', showTodos);
+  }).on('change', showPatientList);
   
   designDoc()
 
@@ -215,10 +216,10 @@ var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", 
   }
   
   // Show the current list of todos by reading them from the database
-  function showTodos() {
+  function showPatientList() {
     db.allDocs({include_docs: true, descending: true}).then( function(doc) {
-    displayTable.fill(doc.rows) ;
-      redrawTodosUI(doc.rows);
+	  displayTable.fill(doc.rows) ;
+      redrawPatientList(doc.rows);
     }).catch( function(err) {
       console.log(err);
     });
@@ -293,7 +294,7 @@ var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", 
 
   // Given an object representing a todo, this will create a list item
   // to display it.
-  function createTodoListItem(todo) {
+  function createPatientListRow(todo) {
     var checkbox = document.createElement('input');
     checkbox.className = 'toggle';
     checkbox.type = 'checkbox';
@@ -341,11 +342,11 @@ var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", 
     }
   }
 
-  function redrawTodosUI(todos) {
+  function redrawPatientList(todos) {
     var ul = document.getElementById('patient-list');
     ul.innerHTML = '';
     todos.forEach(function(todo) {
-      ul.appendChild(createTodoListItem(todo.doc));
+      ul.appendChild(createPatientListRow(todo.doc));
     });
   }
 
@@ -361,7 +362,7 @@ var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", 
   }
 
   addEventListeners();
-  showTodos();
+  showPatientList();
 
   if (remoteCouch) {
     sync();
