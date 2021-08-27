@@ -4,26 +4,39 @@ body {
   padding: 0;
 }
 table {
-	border-collapse: collapse;
+  border-collapse: collapse;
+  width: 100% ;
 }
 th, td {
-	border: 1px solid black;
-	padding: 4px;
+  border: 1px solid black;
+  padding: 4px;
 }
 th {
-	cursor: pointer;
+  cursor: pointer;
 }
 th:hover {
-	background:  yellow;
+  background:  yellow;
 }
 tr:hover {
-	background: lightyellow ;
+  background: lightyellow ;
 }
 td:first-child {
-	display:none;
+  display:none;
 }
 th:first-child {
-	display:none;
+  display:none;
+}
+
+tr {
+  background: #CCCCFF ;
+}
+
+tr.odd {
+  background: #E6F2FF ;
+}
+
+tr.head {
+  background: #CCFFFF ;
 }
 
 button {

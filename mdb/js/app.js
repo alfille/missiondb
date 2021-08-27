@@ -8,140 +8,151 @@ function showPatientList() {
   displayState = "PatientList" ;
 }
 
-  class sortTable {
-    dir = 1 ;
-    lastth = -1 ;
-    constructor(tname) {
-      this.tname = tname ;
-      tname.onclick = this.allClick.bind(this) ;
-    }
-
-    allClick(e) {
-      if (e.target.tagName == 'TH') {
-        return this.sortClick(e) ;
-      }
-    };
-
-    resort() {
-      if ( this.lastth < 0 ) {
-        this.lastth = 0 ;
-        this.dir = 1 ;
-      }
-      this.sortGrid(this.lastth) ;
-    }
-
-    sortClick(e) {
-      let th = e.target;
-      if ( th.cellIndex == this.lastth ) {
-        this.dir = -this.dir ;
-      } else {
-        this.dir = 1;
-        this.lastth = th.cellIndex
-      }
-      // if TH, then sort
-      // cellIndex is the number of th:
-      //   0 for the first column
-      //   1 for the second column, etc
-      this.sortGrid(th.cellIndex);
-    };
-
-    sortGrid(colNum) {
-      let tbody = this.tname.querySelector('tbody');
-      if ( tbody == null ) {
-        // empty table
-        return ;
-      }
-
-      let rowsArray = Array.from(tbody.rows);
-            
-      let type = "number" ;
-      rowsArray.some( function(r) {
-        let c = r.cells[colNum].innerHTML ;
-        if ( c == "" ) {
-        } else if ( isNaN( Number(r.cells[colNum].innerHTML) ) ) {
-          type = "string" ;
-          return true ;
-        } else {
-          return true ;
-        }
-      } );
-
-      // compare(a, b) compares two rows, need for sorting
-      let dir = this.dir ;
-      let compare;
-
-      switch (type) {
-        case 'number':
-          compare = function(rowA, rowB) {
-            return (rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML) * dir;
-          };
-          break;
-        case 'string':
-          compare = function(rowA, rowB) {
-            return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? dir : -dir;
-          };
-          break;
-      }
-      
-      // sort
-      rowsArray.sort(compare);
-
-      tbody.append(...rowsArray);
-    }
-
-    delete () {
-		this.tname.parentNode.removeChild(this.tname) ;
-	} 
+class sortTable {
+  dir = 1 ;
+  lastth = -1 ;
+  constructor(tname) {
+    this.tname = tname ;
+    tname.onclick = this.allClick.bind(this) ;
   }
 
-  class dataTable extends sortTable {
-    constructor( idname, parent, collist ) {
-	  if ( parent == null ) {
-		  parent = document.body ;
-	  }
-      
-      let tbl = document.createElement('table') ;
-      tbl.setAttribute( "id", idname ) ;
-      // Table Head
-      let header = tbl.createTHead() ;
-      let row = header.insertRow(0);
-      collist.forEach( function(v,i,a) {
-        //row.insertCell(i).appendChild( document.createTextNode(v)) ;
-        row.insertCell(i).outerHTML='<th>'+v+'</th>' ;
-      } );
-      // Table Body
-      let tbody = document.createElement('tbody');
-      tbl.appendChild(tbody) ;
-      parent.appendChild(tbl) ;
-      super(tbl) ;
-      this.collist = collist ;
-      console.log(fill);
-      this.fill = this.fill.bind(this) ;
-      console.log(fill);
-		
+  allClick(e) {
+    if (e.target.tagName == 'TH') {
+      return this.sortClick(e) ;
+    }
+  };
+
+  resort() {
+    if ( this.lastth < 0 ) {
+      this.lastth = 0 ;
+      this.dir = 1 ;
+    }
+    this.sortGrid(this.lastth) ;
+  }
+
+  sortClick(e) {
+    let th = e.target;
+    if ( th.cellIndex == this.lastth ) {
+      this.dir = -this.dir ;
+    } else {
+      this.dir = 1;
+      this.lastth = th.cellIndex
+    }
+    // if TH, then sort
+    // cellIndex is the number of th:
+    //   0 for the first column
+    //   1 for the second column, etc
+    this.sortGrid(th.cellIndex);
+  };
+
+  sortGrid(colNum) {
+    let tbody = this.tname.querySelector('tbody');
+    if ( tbody == null ) {
+      // empty table
+      return ;
+    }
+
+    let rowsArray = Array.from(tbody.rows);
+          
+    let type = "number" ;
+    rowsArray.some( function(r) {
+      let c = r.cells[colNum].innerHTML ;
+      if ( c == "" ) {
+      } else if ( isNaN( Number(r.cells[colNum].innerHTML) ) ) {
+        type = "string" ;
+        return true ;
+      } else {
+        return true ;
+      }
+    });
+
+    // compare(a, b) compares two rows, need for sorting
+    let dir = this.dir ;
+    let compare;
+
+    switch (type) {
+      case 'number':
+        compare = function(rowA, rowB) {
+          return (rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML) * dir;
+        };
+        break;
+      case 'string':
+        compare = function(rowA, rowB) {
+          return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? dir : -dir;
+        };
+        break;
     }
     
-    fill( doclist ) {
-		// typically called with doc.rows from allDocs
-		let tbody = this.tname.querySelector('tbody') ;
-		tbody.innerHTML = "" ;
-		
-		doclist.forEach( function(doc,n) {
-			let row = tbody.insertRow(n) ;
-			console.log(this);
-			this.collist.forEach( function(colname,i) {
-				let c = row.insertCell(i) ;
-				if ( colname in doc ) {
-					c.innerHTML = doc[colname] ;
-				} else {
-					c.innerHTML = "" ;
-				}
-			}) ;
-		});
-	}
+    // sort
+    rowsArray.sort(compare);
+    rowsArray.forEach( function( v, i ) {
+      if (i%2 == 1 ) {
+        v.classList.add('odd') ;
+      } else {
+        v.classList.remove('odd') ;
+      }
+    });
+
+    tbody.append(...rowsArray);
   }
 
-var displayTable = new dataTable( "PatientTable", patientListDiv, ["ID", "title", "text", "revision","id" ] ) ;
+  delete () {
+    this.tname.parentNode.removeChild(this.tname) ;
+  } 
+}
+
+class dataTable extends sortTable {
+  constructor( idname, parent, collist ) {
+    if ( parent == null ) {
+      parent = document.body ;
+    }
+      
+    let tbl = document.createElement('table') ;
+    tbl.setAttribute( "id", idname ) ;
+
+    // Table Head
+    let header = tbl.createTHead() ;
+    let row = header.insertRow(0);
+      row.classList.add('head') ;
+    collist.forEach( function(v,i,a) {
+      //row.insertCell(i).appendChild( document.createTextNode(v)) ;
+      row.insertCell(i).outerHTML='<th>'+v+'</th>' ;
+    } );
+
+    // Table Body
+    let tbody = document.createElement('tbody');
+    tbl.appendChild(tbody) ;
+    parent.appendChild(tbl) ;
+    super(tbl) ;
+    this.collist = collist ;
+  
+  }
+    
+  fill( doclist ) {
+    // typically called with doc.rows from allDocs
+    let tbody = this.tname.querySelector('tbody') ;
+    tbody.innerHTML = "" ;
+    let collist = this.collist ;
+    
+    doclist.forEach( function(doc,n) {
+      let row = tbody.insertRow(n) ;
+      if ( n%2 == 1 ) {
+        row.classList.add('odd') ;
+      }
+      collist.forEach( function(colname,i) {
+        let c = row.insertCell(i) ;
+        if ( colname in doc ) {
+          c.innerHTML = doc[colname] ;
+        } else {
+          c.innerHTML = "" ;
+        }
+      }) ;
+    });
+  }
+  
+  }
+
+var displayTable = new dataTable( "PatientTable", null, ["ID", "title", "text", "revision","id" ] ) ;
 
 // Pouchdb routines
 (function() {
@@ -206,9 +217,7 @@ var displayTable = new dataTable( "PatientTable", patientListDiv, ["ID", "title"
   // Show the current list of todos by reading them from the database
   function showTodos() {
     db.allDocs({include_docs: true, descending: true}).then( function(doc) {
-	  console.log(doc.rows);
-	  console.log(displayTable);
-	  displayTable.fill(doc.rows).bind(displayTable) ;
+    displayTable.fill(doc.rows) ;
       redrawTodosUI(doc.rows);
     }).catch( function(err) {
       console.log(err);
