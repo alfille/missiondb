@@ -153,7 +153,7 @@ class dataTable extends sortTable {
   
   }
 
-var displayTable = new dataTable( "PatientTable", null, ["_id", "title", "text", "revision","_id","_rev" ] ) ;
+var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "title", "text", "revision","_id","_rev" ] ) ;
 
 // Pouchdb routines
 (function() {
@@ -161,7 +161,6 @@ var displayTable = new dataTable( "PatientTable", null, ["_id", "title", "text",
   'use strict';
 
   var ENTER_KEY = 13;
-  var newTodoDom = document.getElementById('new-field');
   var syncDom = document.getElementById('sync-wrapper');
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
@@ -179,7 +178,7 @@ var displayTable = new dataTable( "PatientTable", null, ["_id", "title", "text",
   designDoc()
 
   // We have to create a new todo document and enter it in the database
-  function addTodo(text) {
+  function addPatient(text) {
   var todo = {
     _id: new Date().toISOString(),
     title: text,
@@ -218,33 +217,11 @@ var displayTable = new dataTable( "PatientTable", null, ["_id", "title", "text",
   // Show the current list of todos by reading them from the database
   function showPatientList() {
     db.allDocs({include_docs: true, descending: true}).then( function(doc) {
-	  displayTable.fill(doc.rows) ;
+    displayTable.fill(doc.rows) ;
     }).catch( function(err) {
       console.log(err);
     });
   }
-
-  function checkboxChanged(todo, event) {
-    todo.completed = event.target.checked;
-    db.put(todo);
-  }
-
-  // User pressed the delete button for a todo, delete it
-  function deleteButtonPressed(todo) {
-    db.remove(todo);
-  }
-
-  // The input box when editing a todo has blurred, we should save
-  // the new title or delete the todo if the title is empty
-  function todoBlurred(todo, event) {
-    var trimmedText = event.target.value.trim();
-    if (!trimmedText) {
-      db.remove(todo);
-    } else {
-      todo.title = trimmedText;
-      db.put(todo);
-    }
- }
 
   // Initialise a sync with the remote server
   function sync() {
@@ -299,18 +276,6 @@ var displayTable = new dataTable( "PatientTable", null, ["_id", "title", "text",
     }
   }
 
-  function newTodoKeyPressHandler( event ) {
-    if (event.keyCode === ENTER_KEY) {
-      addTodo(newTodoDom.value);
-      newTodoDom.value = '';
-    }
-  }
-
-  function addEventListeners() {
-    newTodoDom.addEventListener('keypress', newTodoKeyPressHandler, false);
-  }
-
-  addEventListeners();
   showPatientList();
 
   if (remoteCouch) {
