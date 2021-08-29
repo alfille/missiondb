@@ -8,6 +8,29 @@ function showPatientList() {
   displayState = "PatientList" ;
 }
 
+function setCookie( cname, value ) {
+  // From https://www.tabnine.com/academy/javascript/how-to-set-cookies-javascript/
+    let date = new Date();
+    date.setTime(date.getTime() + (400 * 24 * 60 * 60 * 1000)); // > 1year
+    const expires = " expires=" + date.toUTCString();
+    document.cookie = cname + "=" + value + "; " + expires + "; path=/";
+}
+
+function deleteCookie( cname ) {
+    document.cookie = cname +  "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+}
+
+function getCookie( cname ) {
+      const name = cname + "=";
+      const cDecoded = decodeURIComponent(document.cookie); //to be careful
+      const cArr = cDecoded .split('; ');
+      let res ;
+      cArr.forEach(val => {
+          if (val.indexOf(name) === 0) res = val.substring(name.length);
+      })
+      return res;
+}
+
 class sortTable {
   dir = 1 ;
   lastth = -1 ;
