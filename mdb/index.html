@@ -20,18 +20,11 @@
           <ul id="patient-list"></ul>
         </section>
       </div>
-      <footer id="footer">
-        <span id="patientCount"></span>
-        <div id="sync-wrapper">
-          <div id="sync-success">Currently syncing</div>
-          <div id="sync-error">There was a problem syncing</div>
-        </div>
-      </footer>
     </section>
     <footer id="info">
       <button name="patientListButton" type="button" class="footerbutton" onclick="showPatientList()">Patient List</button>
       <button name="addButton" type="button" class="footerbutton" onclick="showPatientList()">Add</button>
-      <p><a href="http://github.com/alfille/missiondb">Mission Database</a></p>
+      <p><a href="http://github.com/alfille/missiondb">Mission Database</a>&nbsp;<div id="syncstatus">Sync Status</div></p>
     </footer>
     <script src="//cdn.jsdelivr.net/pouchdb/3.0.2/pouchdb.min.js"></script>
     <script src="js/base.js"></script>

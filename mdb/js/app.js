@@ -1,12 +1,24 @@
-var displayState = "none" ;
+var displayState ;
 
 function showPatientList() {
   var x = document.getElementById("patientListDiv") ;
   if (x.style.display !== "block") {
     x.style.display = "block" ;
   }
-  displayState = "PatientList" ;
+  displayState = "PatientList";
+  document.getElementsByName("addButton")[0].innerHTML="Add Patient" ;
 }
+
+function displayStateChange() {
+  switch( displayState) {
+    case "PatientList":
+      showPatientList() ;
+    default:
+      showPatientList() ;
+  }
+  setCookie("displayState",displayState) ;
+}
+
 
 function setCookie( cname, value ) {
   // From https://www.tabnine.com/academy/javascript/how-to-set-cookies-javascript/
@@ -184,15 +196,14 @@ var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "t
   'use strict';
 
   var ENTER_KEY = 13;
-  var syncDom = document.getElementById('sync-wrapper');
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
 
   var db = new PouchDB('mdb') ;
   console.log(db.adapter); // prints 'idb'
   console.log(db); // prints 'idb'
-  var remoteCouch = 'http://192.168.1.5:5984/mdb';
-
+  var remoteCouch = 'http://localhost:5984/mdb';
+  
   db.changes({
     since: 'now',
     live: true
@@ -248,30 +259,24 @@ var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "t
 
   // Initialise a sync with the remote server
   function sync() {
-    syncDom.setAttribute('data-sync-state', 'syncing');
+    let sync = document.getElementById("syncstatus") ;
+    sync.innerHTML = "Sync status: syncing..." ;
     db.sync( remoteCouch, {
     live: true,
     retry: true
   }).on('change', function(info) {
-    syncDom.setAttribute('data-sync-state', 'c');
+    sync.innerHTML = "Sync status: changed";
   }).on('paused', function(err) {
-    syncDom.setAttribute('data-sync-state', 'p');
+    sync.innerHTML = "Sync status: paused";
   }).on('active', function() {
-    syncDom.setAttribute('data-sync-state', 'a');
+    sync.innerHTML = "Sync status: active";
   }).on('denied', function(err) {
-    syncDom.setAttribute('data-sync-state', 'd');
+    sync.innerHTML = "Sync status: denied "+err;
   }).on('complete', function(info) {
-    syncDom.setAttribute('data-sync-state', '!');
+    sync.innerHTML = "Sync status: complete";
   }).on('error', function(err) {
-    syncDom.setAttribute('data-sync-state', 'Error');
+    sync.innerHTML = "Sync status: error "+err ;
   });
-  }
-
-  // EDITING STARTS HERE (you dont need to edit anything below this line)
-
-  // There was some form or error syncing
-  function syncError() {
-    syncDom.setAttribute('data-sync-state', 'error');
   }
 
   // User has double clicked a todo, display an input so they can edit the title
@@ -304,6 +309,9 @@ var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "t
   if (remoteCouch) {
     sync();
   }
+  displayState = getCookie( "displayState" ) ;
+  displayStateChange() ;
+
 
 })();
 
