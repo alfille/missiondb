@@ -17,21 +17,20 @@
       </header>
       <div id="patientListDiv">
         <div id="patientListSection" ></div>
-        <button name="patientListButton" type="button" class="divbutton" onclick="showPatientList()">Patient List</button>
         <button name="addpatientButton" type="button" class="divbutton" onclick="newPatient()">Add Patient</button>
-        <button name="gopatientButton" type="button" class="divbutton" onclick="openPatient()">Review/Edit Patient</button>
+        <button name="gopatientButton" type="button" class="divbutton" onclick="PatientOpen()">Review/Edit Patient</button>
       </div>
       <div id="patientOpenDiv">
         <div id="patientOpenSection" ></div>
         <button name="editpatientButton" type="button" class="divbutton" onclick="editPatient()">Edit Patient Data</button>
         <button name="gocommentButton" type="button" class="divbutton" onclick="commentPatient()">Case Comments</button>
-        <button name="golistButton" type="button" class="divbutton" onclick="cancelPatient()">Return</button>
+        <button name="golistButton" type="button" class="divbutton" onclick="showPatientList()">Return</button>
       </div>
       <div id="patientEditDiv">
         <div id="patientEditSection" ></div>
         <button name="addpatientButton" type="button" class="divbutton" onclick="addPatient()">Save New Patient</button>
         <button name="updatepatientButton" type="button" class="divbutton" onclick="updatePatient()">Update Patient</button>
-        <button name="golistButton" type="button" class="divbutton" onclick="cancelPatient()">Cancel Changes</button>
+        <button name="golistButton" type="button" class="divbutton" onclick="showPatientList()">Cancel Changes</button>
       </div>
       <div id="commentListDiv">
         <div id="commentListSection" ></div>

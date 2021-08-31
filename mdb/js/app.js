@@ -1,6 +1,13 @@
 var displayState ;
 var patientId ;
+var commentId ;
 var editor = new MediumEditor('.editable');
+
+var db = new PouchDB('mdb') ;
+console.log(db.adapter); // prints 'idb'
+console.log(db); // prints 'idb'
+var remoteCouch = 'http://localhost:5984/mdb';
+
 
 function showPatientList() {
     displayState = "PatientList" ;
@@ -45,6 +52,8 @@ function selectPatient( pid ) {
 function unselectPatient() {
     patientId = undefined ;
     deleteCookie( "patientId" ) ;
+    commentId = undefined ;
+    deleteCookie( "commentId" ) ;
     if ( displayState == "PatientList" ) {
         let rows = document.getElementById("PatientTable").rows ;
         for ( let i = 0 ; i < rows.length ; ++i ) {
@@ -68,7 +77,43 @@ function displayStateChange() {
             document.getElementById(ds[1]).style.display = "none" ;
         }
     }
+
     setCookie("displayState",displayState) ;
+
+    switch( displayState ) {
+        case "PatientList":
+            db.allDocs({include_docs: true, descending: true}).then( function(doc) {
+            displayTable.fill(doc.rows) ;
+            }).catch( function(err) {
+              console.log(err);
+            });
+            break ;
+        case "PatientOpen":
+            if ( patientId ) {
+                PatientOpen() ;
+            } else {
+                showPatientList() ;
+            }
+            break ;
+        case "PatientEdit":
+            PatientEdit() ;
+            break ;
+        case "CommentList":
+            if ( patientId ) {
+                CommentList() ;
+            } else {
+                showPatientList() ;
+            }
+            break ;
+        case "CommentEdit":
+            if ( patientId && commentId ) {
+                CommentEdit() ;
+            } else {
+                showPatientList() ;
+            }
+            break ;
+
+    }
 }
 
 function setCookie( cname, value ) {
@@ -241,6 +286,10 @@ class dataTable extends sortTable {
       row.addEventListener( 'click', (e) => {
           selectPatient( content._id ) ;
       }) ;
+      row.addEventListener( 'dblclick', (e) => {
+          selectPatient( content._id ) ;
+          showPatientOpen() ;
+      }) ;
       collist.forEach( function(colname,i) {
         let c = row.insertCell(i) ;
         if ( colname in content ) {
@@ -264,11 +313,6 @@ var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "l
   var ENTER_KEY = 13;
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
-
-  var db = new PouchDB('mdb') ;
-  console.log(db.adapter); // prints 'idb'
-  console.log(db); // prints 'idb'
-  var remoteCouch = 'http://localhost:5984/mdb';
   
   db.changes({
     since: 'now',
@@ -314,14 +358,6 @@ var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "l
   });
   }
   
-  // Show the current list of todos by reading them from the database
-  function showPatientList() {
-    db.allDocs({include_docs: true, descending: true}).then( function(doc) {
-    displayTable.fill(doc.rows) ;
-    }).catch( function(err) {
-      console.log(err);
-    });
-  }
 
   // Initialise a sync with the remote server
   function sync() {
