@@ -16,17 +16,44 @@
         <h1>Mission Database</h1>
       </header>
       <div id="patientListDiv">
-       <section id="patientListSection" >
-          <ul id="patient-list"></ul>
-        </section>
+        <div id="patientListSection" ></div>
+        <button name="patientListButton" type="button" class="divbutton" onclick="showPatientList()">Patient List</button>
+        <button name="addpatientButton" type="button" class="divbutton" onclick="newPatient()">Add Patient</button>
+        <button name="gopatientButton" type="button" class="divbutton" onclick="openPatient()">Review/Edit Patient</button>
+      </div>
+      <div id="patientOpenDiv">
+        <div id="patientOpenSection" ></div>
+        <button name="editpatientButton" type="button" class="divbutton" onclick="editPatient()">Edit Patient Data</button>
+        <button name="gocommentButton" type="button" class="divbutton" onclick="commentPatient()">Case Comments</button>
+        <button name="golistButton" type="button" class="divbutton" onclick="cancelPatient()">Return</button>
+      </div>
+      <div id="patientEditDiv">
+        <div id="patientEditSection" ></div>
+        <button name="addpatientButton" type="button" class="divbutton" onclick="addPatient()">Save New Patient</button>
+        <button name="updatepatientButton" type="button" class="divbutton" onclick="updatePatient()">Update Patient</button>
+        <button name="golistButton" type="button" class="divbutton" onclick="cancelPatient()">Cancel Changes</button>
+      </div>
+      <div id="commentListDiv">
+        <div id="commentListSection" ></div>
+        <button name="addcommentButton" type="button" class="divbutton" onclick="addComment()">Add Case Comment</button>
+        <button name="addimageButton" type="button" class="divbutton" onclick="addComment()">Add Image</button>
+        <button name="editcommentButton" type="button" class="divbutton" onclick="updatePatient()">Update Comment</button>
+        <button name="gopatientButton" type="button" class="divbutton" onclick="openPatient()">Return</button>
+      </div>
+      <div id="commentEditDiv">
+        <div id="commentEditSection" ></div>
+        <button name="savecommentButton" type="button" class="divbutton" onclick="saveComment()">Save</button>
+        <button name="gocommentButton" type="button" class="divbutton" onclick="commentPatient()">Cancel</button>
       </div>
     </section>
     <footer id="info">
-      <button name="patientListButton" type="button" class="footerbutton" onclick="showPatientList()">Patient List</button>
-      <button name="addButton" type="button" class="footerbutton" onclick="showPatientList()">Add</button>
       <p><a href="http://github.com/alfille/missiondb">Mission Database</a>&nbsp;<div id="syncstatus">Sync Status</div></p>
     </footer>
+    <!-- pouchdb -->
     <script src="//cdn.jsdelivr.net/pouchdb/3.0.2/pouchdb.min.js"></script>
+    <!-- medium-editor -->
+    <script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
     <script src="js/base.js"></script>
     <script src="js/app.js"></script>
   </body>

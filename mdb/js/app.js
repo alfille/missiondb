@@ -1,24 +1,75 @@
 var displayState ;
+var patientId ;
+var editor = new MediumEditor('.editable');
 
 function showPatientList() {
-  var x = document.getElementById("patientListDiv") ;
-  if (x.style.display !== "block") {
-    x.style.display = "block" ;
-  }
-  displayState = "PatientList";
-  document.getElementsByName("addButton")[0].innerHTML="Add Patient" ;
+    displayState = "PatientList" ;
+    displayStateChange() ;
+}
+
+function showPatientEdit() {
+    displayState = "PatientEdit" ;
+    displayStateChange() ;
+}
+
+function showPatientOpen() {
+    displayState = "PatientOpen" ;
+    displayStateChange() ;
+}
+
+function showCommentList() {
+    displayState = "CommentList" ;
+    displayStateChange() ;
+}
+
+function showCommentEdit() {
+    displayState = "CommentEdit" ;
+    displayStateChange() ;
+}
+
+function selectPatient( pid ) {
+    patientId = pid ;
+    setCookie( "patientId", pid ) ;
+    if ( displayState == "PatientList" ) {
+        let rows = document.getElementById("PatientTable").rows ;
+        for ( let i = 0 ; i < rows.length ; ++i ) {
+            if ( rows[i].cells[0].innerHTML == pid ) {
+                rows[i].classList.add('choice') ;
+            } else {
+                rows[i].classList.remove('choice') ;
+            }
+        }
+    }
+}
+
+function unselectPatient() {
+    patientId = undefined ;
+    deleteCookie( "patientId" ) ;
+    if ( displayState == "PatientList" ) {
+        let rows = document.getElementById("PatientTable").rows ;
+        for ( let i = 0 ; i < rows.length ; ++i ) {
+            rows[i].classList.remove('choice') ;
+        }
+    }
 }
 
 function displayStateChange() {
-  switch( displayState) {
-    case "PatientList":
-      showPatientList() ;
-    default:
-      showPatientList() ;
-  }
-  setCookie("displayState",displayState) ;
+    const dslist = [
+        [ "PatientList", "patientListDiv" ] ,
+        [ "PatientEdit", "patientEditDiv" ] ,
+        [ "PatientOpen", "patientOpenDiv" ] ,
+        [ "CommentList", "commentListDiv" ] ,
+        [ "CommentEdit", "commentEditDiv" ] ,
+    ] ;
+    for (let ds of dslist) {
+        if ( displayState == ds[0] ) {
+            document.getElementById(ds[1]).style.display = "block" ;
+        } else {
+            document.getElementById(ds[1]).style.display = "none" ;
+        }
+    }
+    setCookie("displayState",displayState) ;
 }
-
 
 function setCookie( cname, value ) {
   // From https://www.tabnine.com/academy/javascript/how-to-set-cookies-javascript/
@@ -81,6 +132,7 @@ class sortTable {
   };
 
   sortGrid(colNum) {
+    unselectPatient() ;
     let tbody = this.tname.querySelector('tbody');
     if ( tbody == null ) {
       // empty table
@@ -162,7 +214,18 @@ class dataTable extends sortTable {
     this.collist = collist ;
   
   }
-    
+
+    getRowIndex(e){
+        // from https://stackoverflow.com/questions/1824206/how-to-detect-which-row-tr-is-clicked
+        e= window.event || e;
+        var  sib, who= e.target || e.srcElement;
+        while(who && who.nodeName!= 'TR') who= who.parentNode;
+        if(who){
+            console.log(who.sectionRowIndex) ;
+            return who.sectionRowIndex ;
+        }
+    }    
+
   fill( doclist ) {
     // typically called with doc.rows from allDocs
     let tbody = this.tname.querySelector('tbody') ;
@@ -175,6 +238,9 @@ class dataTable extends sortTable {
       if ( n%2 == 1 ) {
         row.classList.add('odd') ;
       }
+      row.addEventListener( 'click', (e) => {
+          selectPatient( content._id ) ;
+      }) ;
       collist.forEach( function(colname,i) {
         let c = row.insertCell(i) ;
         if ( colname in content ) {
@@ -188,7 +254,7 @@ class dataTable extends sortTable {
   
   }
 
-var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "title", "text", "revision","_id","_rev" ] ) ;
+var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "lastname", "firstname", "dob","dx" ] ) ;
 
 // Pouchdb routines
 (function() {
