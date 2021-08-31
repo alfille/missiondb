@@ -260,17 +260,6 @@ class dataTable extends sortTable {
   
   }
 
-    getRowIndex(e){
-        // from https://stackoverflow.com/questions/1824206/how-to-detect-which-row-tr-is-clicked
-        e= window.event || e;
-        var  sib, who= e.target || e.srcElement;
-        while(who && who.nodeName!= 'TR') who= who.parentNode;
-        if(who){
-            console.log(who.sectionRowIndex) ;
-            return who.sectionRowIndex ;
-        }
-    }    
-
   fill( doclist ) {
     // typically called with doc.rows from allDocs
     let tbody = this.tname.querySelector('tbody') ;
@@ -303,8 +292,88 @@ class dataTable extends sortTable {
   
   }
 
-var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "lastname", "firstname", "dob","dx" ] ) ;
+var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "LastName", "FirstName", "DOB","Dx","Procedure" ] ) ;
 
+class FieldList {
+  constructor( idname, parent, fieldlist ) {
+    if ( parent == null ) {
+      parent = document.body ;
+    }
+    this.fieldlist = fieldlist ;
+      
+    let ul = document.createElement('ul') ;
+    ul.setAttribute( "id", idname ) ;
+    for ( let i=0; i<fieldlist.length; ++i ) {
+      let li = document.createElement("li") ;
+      li.appendChild(document.createTextNode(fieldlist[i][0])) ;
+      li.name=fieldlist[i][0] ;
+      ul.appendChild(li) ;
+      
+      li = document.createElement("li") ;
+      li.classList.add("odd") ;
+      li.name=fieldlist[i][0] ;
+      ul.appendChild(li)
+      
+      this.li = li;
+    }
+  }
+    
+  li2(name) {
+      return this.li.getElementsByName(name)[1] ;
+  }
+}
+  
+class OpenPList extends FieldList {
+    show() {
+      db.get( patientId ).then( function(doc) {
+        for ( let i=0; i<fieldlist.length; ++i ) {
+          this.li2(fieldlist[i][0]).innerHTML = doc.doc[name] ;
+        }
+      }).catch( function(err) {
+        console.log(err) ;
+        return false ;
+      }
+      return true ;
+    }
+}
+
+class EditPList extends FieldList {
+    show() {
+      let doc ;
+      db.get( patientId ).then( function(d) {
+        doc = d.doc ;
+        }).catch( function(err) {
+          console.log(err) ;
+        });
+        for ( let i=0; i<fieldlist.length; ++i ) {
+          this.li2(fieldlist[i][0]).innerHTML = doc.doc[name] ;
+        }
+      }
+    }
+}
+          
+var displayPatientOpen = new OpenPList( "PatientList", patientOpenSection, [
+  ["LastName","text"],
+  ["FirstName","text"],
+  ["DOB","date"],
+  ["Weight(kg)","num"],
+  ["Dx","text"], 
+  ["Complaints","text"], 
+  ["Procedure","text"],
+  ["Length","num"],
+  ["Equipment","text"],
+  ["Sex","sex"],
+  ["Meds","text"],
+  ["Allergies","text"],
+  ["Surgeon","text"],
+  ["ASA class","num"],
+  ["phone","text"], 
+  ["email","text"], 
+  ["address","text"], 
+  ["Contact","text"] ] ) ;
+  
+  
+  
 // Pouchdb routines
 (function() {
 

@@ -30,16 +30,22 @@ th:first-child {
   display:none;
 }
 
-tr {
+tr, li {
   background: #CCCCFF ;
 }
 
-tr.odd {
+tr.odd, li.odd {
   background: #E6F2FF ;
 }
 
 tr.head {
   background: #CCFFFF ;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
 button {
