@@ -312,7 +312,7 @@ class dataTable extends sortTable {
     });
   }
   
-  }
+}
 
 var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "LastName", "FirstName", "DOB","Dx","Procedure" ] ) ;
 
@@ -346,7 +346,6 @@ class FieldList {
   
   nonnullstring(s) {
 	  if (s == "" ) {
-		  console.log("null");
 		  return '\u200B' ;
 	  }
 	  return s ;
@@ -357,7 +356,7 @@ class OpenPList extends FieldList {
   constructor( idname, parent ) {
       super( idname, parent, PatientInfoList ) ;
       this.ul.addEventListener( 'dblclick', (e) => {
-          showPatientEdit() ;
+          editPatient() ;
       }) ;
       
 	console.log(patientId) ;
@@ -378,6 +377,7 @@ class OpenPList extends FieldList {
 class EditPList extends FieldList {
   constructor( idname, parent ) {
       super( idname, parent, PatientInfoList ) ;
+      document.getElementById("saveeditpatient").disabled = true ;
       for ( let i=0; i<this.fieldlist.length; ++i ) {
         let inp = document.createElement("input") ;
         inp.type = this.fieldlist[i][1] ;
@@ -402,6 +402,10 @@ class EditPList extends FieldList {
             contain.value = "" ;
         }
       }
+      this.ul.addEventListener( 'change', (e) => {
+		  document.log("enable") ;
+		document.getElementById("saveeditpatient").disabled = false ;
+      }) ;
     }
     
     tolist() {
@@ -433,15 +437,35 @@ class EditPList extends FieldList {
     }
 }
 
-function addPatient() {
-  displayPatientEdit.add() ;
-  showPatientOpen() ;
-}
-         
 function newPatient() {
   unselectPatient() ;
   showPatientEdit() ;  
-}  
+}
+
+function editPatient() {
+	displayPatientOpen = null ;
+	showPatientEdit() ;
+}
+
+function unopenPatient() {
+	displayPatientOpen = null ;
+	showPatientList() ;
+}
+
+function savePatient() {
+	displayPatientEdit.add() ;
+	displayPatientEdit = null ;
+	showPatientOpen ;
+}
+  
+function nosavePatient() {
+	displayPatientEdit = null ;
+	if ( selectPatient ) {
+		showPatientOpen ;
+	} else {
+		showPatientList() ;		
+	}
+}
   
 // Pouchdb routines
 (function() {
