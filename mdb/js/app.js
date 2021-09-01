@@ -2,12 +2,34 @@ var displayState ;
 var patientId ;
 var commentId ;
 var editor = new MediumEditor('.editable');
-
+var displayPatientOpen  ;
+var displayPatientEdit  ;
+  
 var db = new PouchDB('mdb') ;
 console.log(db.adapter); // prints 'idb'
 console.log(db); // prints 'idb'
 var remoteCouch = 'http://localhost:5984/mdb';
 
+var PatientInfoList = [
+  ["LastName","text"],
+  ["FirstName","text"],
+  ["DOB","date"],
+  ["Weight(kg)","number"],
+  ["Dx","text"], 
+  ["Complaints","text"], 
+  ["Procedure","text"],
+  ["Length","time"],
+  ["Equipment","text"],
+  ["Sex","text"],
+  ["Meds","text"],
+  ["Allergies","text"],
+  ["Surgeon","text"],
+  ["ASA class","number"],
+  ["phone","tel"], 
+  ["email","email"], 
+  ["address","text"], 
+  ["Contact","text"] 
+  ] ;
 
 function showPatientList() {
     displayState = "PatientList" ;
@@ -90,13 +112,13 @@ function displayStateChange() {
             break ;
         case "PatientOpen":
             if ( patientId ) {
-                displayPatientOpen.show() ;
+                displayPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
             } else {
                 showPatientList() ;
             }
             break ;
         case "PatientEdit":
-            displayPatientEdit.show();
+            displayPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
             break ;
         case "CommentList":
             if ( patientId ) {
@@ -300,6 +322,11 @@ class FieldList {
       parent = document.body ;
     }
     this.fieldlist = fieldlist ;
+    
+	let uls = parent.getElementsByTagName('ul') ;
+    if (uls.length > 0 ) {
+		parent.removeChild(uls[0]) ;
+	}
       
     let ul = document.createElement('ul') ;
     ul.setAttribute( "id", idname ) ;
@@ -310,36 +337,41 @@ class FieldList {
       
       li = document.createElement("li") ;
       li.classList.add("odd") ;
-      li.appendChild(document.createTextNode("")) ;
       ul.appendChild(li)
     }
     this.ul = ul ;
     parent.appendChild(ul) ;
     this.li = this.ul.getElementsByTagName('li')
   }
+  
+  nonnullstring(s) {
+	  if (s == "" ) {
+		  console.log("null");
+		  return '\u200B' ;
+	  }
+	  return s ;
+  }
 }
   
 class OpenPList extends FieldList {
   constructor( idname, parent ) {
       super( idname, parent, PatientInfoList ) ;
-      for ( let i=0; i<this.fieldlist.length; ++i ) {
-        this.li[2*i+1].innerHTML = "" ;
-      }
       this.ul.addEventListener( 'dblclick', (e) => {
           showPatientEdit() ;
       }) ;
-    }
-
-    show() {
-      db.get( patientId ).then( function(doc) {
-        for ( let i=0; i<this.fieldlist.length; ++i ) {
-          this.li[2*i+1].innerHTML = doc.doc[name] ;
+      
+	console.log(patientId) ;
+      db.get( patientId ).then(( function(doc) {
+		  console.log(doc);
+        for ( let i=0; i < this.fieldlist.length; ++i ) {
+          this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(doc[this.fieldlist[i][0]]))) ;
         }
-      }).catch( function(err) {
+      }).bind(this)).catch(( function(err) {
         console.log(err) ;
-        return false ;
-      });
-      return true ;
+        for ( let i=0; i < this.fieldlist.length; ++i ) {
+          this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(''))) ;
+        }
+      }).bind(this));
     }
 }
 
@@ -351,18 +383,17 @@ class EditPList extends FieldList {
         inp.type = this.fieldlist[i][1] ;
         this.li[2*i+1].appendChild(inp) ;
       }
-    }
-    
-    show() {
+
       let doc ;
-      db.get( patientId ).then( function(d) {
-        doc = d.doc ;
-        this._rev = doc["_rev"] ;
-        this._id = doc["_id"] ;
-        }).catch( function(err) {
-          this._rev = undefined ;
-          this._id = undefined ;
-        });
+	  if ( patientId ) {
+		  db.get( patientId ).then( function(doc) {
+			this._rev = doc["_rev"] ;
+			this._id = doc["_id"] ;
+			}).catch( function(err) {
+				// no matching record
+			});
+	    }
+		
         for ( let i=0; i<this.fieldlist.length; ++i ) {
           let contain = this.li[2*i+1].querySelector('input') ;
           if ( doc ) {
@@ -406,32 +437,7 @@ function addPatient() {
   displayPatientEdit.add() ;
   showPatientOpen() ;
 }
-
-          
-var PatientInfoList = [
-  ["LastName","text"],
-  ["FirstName","text"],
-  ["DOB","date"],
-  ["Weight(kg)","number"],
-  ["Dx","text"], 
-  ["Complaints","text"], 
-  ["Procedure","text"],
-  ["Length","time"],
-  ["Equipment","text"],
-  ["Sex","text"],
-  ["Meds","text"],
-  ["Allergies","text"],
-  ["Surgeon","text"],
-  ["ASA class","number"],
-  ["phone","text"], 
-  ["email","text"], 
-  ["address","text"], 
-  ["Contact","text"] 
-  ] ;
-
-var displayPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
-var displayPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
-  
+         
 function newPatient() {
   unselectPatient() ;
   showPatientEdit() ;  
@@ -442,8 +448,6 @@ function newPatient() {
 
   'use strict';
 
-  var ENTER_KEY = 13;
-
   // EDITING STARTS HERE (you dont need to edit anything above this line)
   
   db.changes({
@@ -453,20 +457,6 @@ function newPatient() {
   
   designDoc()
 
-  // We have to create a new todo document and enter it in the database
-  function addPatient(text) {
-  var todo = {
-    _id: new Date().toISOString(),
-    title: text,
-    completed: false
-  };
-  db.put(todo).then(function() {
-      console.log('Successfully posted a todo!');
-  }).catch( function(err) {
-    console.log(err);
-  });
-  }
-  
   // Design document
   function designDoc() {
   var desname = "_design/alpha"
@@ -511,31 +501,6 @@ function newPatient() {
   }).on('error', function(err) {
     sync.innerHTML = "Sync status: error "+err ;
   });
-  }
-
-  // User has double clicked a todo, display an input so they can edit the title
-  function todoDblClicked(todo) {
-    var div = document.getElementById('li_' + todo._id);
-    var inputEditTodo = document.getElementById('input_' + todo._id);
-    div.className = 'editing';
-    inputEditTodo.focus();
-  }
-
-  // If they press enter while editing an entry, blur it to trigger save
-  // (or delete)
-  function todoKeyPressed(todo, event) {
-    if (event.keyCode === ENTER_KEY) {
-      var inputEditTodo = document.getElementById('input_' + todo._id);
-      inputEditTodo.blur();
-    }
-  }
-
-  function getProp( obj, prop ) {
-    if (prop in obj ) {
-      return obj[prop] ;
-    } else {
-      return prop+"?" ;
-    }
   }
 
   showPatientList();
