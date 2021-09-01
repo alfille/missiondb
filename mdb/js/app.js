@@ -90,13 +90,13 @@ function displayStateChange() {
             break ;
         case "PatientOpen":
             if ( patientId ) {
-                PatientOpen() ;
+                displayPatientOpen.show() ;
             } else {
                 showPatientList() ;
             }
             break ;
         case "PatientEdit":
-            PatientEdit() ;
+            displayPatientEdit.show();
             break ;
         case "CommentList":
             if ( patientId ) {
@@ -303,76 +303,139 @@ class FieldList {
       
     let ul = document.createElement('ul') ;
     ul.setAttribute( "id", idname ) ;
-    for ( let i=0; i<fieldlist.length; ++i ) {
+    for ( let i=0; i<this.fieldlist.length; ++i ) {
       let li = document.createElement("li") ;
-      li.appendChild(document.createTextNode(fieldlist[i][0])) ;
-      li.name=fieldlist[i][0] ;
+      li.appendChild(document.createTextNode(this.fieldlist[i][0])) ;
       ul.appendChild(li) ;
       
       li = document.createElement("li") ;
       li.classList.add("odd") ;
-      li.name=fieldlist[i][0] ;
+      li.appendChild(document.createTextNode("")) ;
       ul.appendChild(li)
-      
-      this.li = li;
     }
-  }
-    
-  li2(name) {
-      return this.li.getElementsByName(name)[1] ;
+    this.ul = ul ;
+    parent.appendChild(ul) ;
+    this.li = this.ul.getElementsByTagName('li')
   }
 }
   
 class OpenPList extends FieldList {
+  constructor( idname, parent ) {
+      super( idname, parent, PatientInfoList ) ;
+      for ( let i=0; i<this.fieldlist.length; ++i ) {
+        this.li[2*i+1].innerHTML = "" ;
+      }
+      this.ul.addEventListener( 'dblclick', (e) => {
+          showPatientEdit() ;
+      }) ;
+    }
+
     show() {
       db.get( patientId ).then( function(doc) {
-        for ( let i=0; i<fieldlist.length; ++i ) {
-          this.li2(fieldlist[i][0]).innerHTML = doc.doc[name] ;
+        for ( let i=0; i<this.fieldlist.length; ++i ) {
+          this.li[2*i+1].innerHTML = doc.doc[name] ;
         }
       }).catch( function(err) {
         console.log(err) ;
         return false ;
-      }
+      });
       return true ;
     }
 }
 
 class EditPList extends FieldList {
+  constructor( idname, parent ) {
+      super( idname, parent, PatientInfoList ) ;
+      for ( let i=0; i<this.fieldlist.length; ++i ) {
+        let inp = document.createElement("input") ;
+        inp.type = this.fieldlist[i][1] ;
+        this.li[2*i+1].appendChild(inp) ;
+      }
+    }
+    
     show() {
       let doc ;
       db.get( patientId ).then( function(d) {
         doc = d.doc ;
+        this._rev = doc["_rev"] ;
+        this._id = doc["_id"] ;
         }).catch( function(err) {
-          console.log(err) ;
+          this._rev = undefined ;
+          this._id = undefined ;
         });
-        for ( let i=0; i<fieldlist.length; ++i ) {
-          this.li2(fieldlist[i][0]).innerHTML = doc.doc[name] ;
+        for ( let i=0; i<this.fieldlist.length; ++i ) {
+          let contain = this.li[2*i+1].querySelector('input') ;
+          if ( doc ) {
+            contain.value = doc[this.fieldlist[i][0]] ;
+          } else {
+            contain.value = "" ;
         }
       }
     }
+    
+    tolist() {
+      let a = {}
+      for ( let i=0; i<this.fieldlist.length; ++i ) {
+        a[this.fieldlist[i][0]] =  this.li[2*i+1].querySelector('input').value ;
+        console.log(a) ;
+      }
+      return a ;
+    }
+    
+    toId(a) {
+      return [a.LastName,a.FirstName,a.DOB].join(";") ;
+    }
+    
+    add() {
+      let doc = this.tolist() ;
+      console.log(doc) ;
+      if ( this._id ) {
+        doc["_id"] = this._id ;
+        doc["_rev"] = this._rev ;
+        selectPatient( this._id ) ;
+      } else {
+        doc["_id"] = this.toId(doc) ;
+      }
+      db.put(doc).catch( function(err) {
+        console.log(err) ;
+      }) ;
+    }
 }
+
+function addPatient() {
+  displayPatientEdit.add() ;
+  showPatientOpen() ;
+}
+
           
-var displayPatientOpen = new OpenPList( "PatientList", patientOpenSection, [
+var PatientInfoList = [
   ["LastName","text"],
   ["FirstName","text"],
   ["DOB","date"],
-  ["Weight(kg)","num"],
+  ["Weight(kg)","number"],
   ["Dx","text"], 
   ["Complaints","text"], 
   ["Procedure","text"],
-  ["Length","num"],
+  ["Length","time"],
   ["Equipment","text"],
-  ["Sex","sex"],
+  ["Sex","text"],
   ["Meds","text"],
   ["Allergies","text"],
   ["Surgeon","text"],
-  ["ASA class","num"],
+  ["ASA class","number"],
   ["phone","text"], 
   ["email","text"], 
   ["address","text"], 
-  ["Contact","text"] ] ) ;
+  ["Contact","text"] 
+  ] ;
+
+var displayPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
+var displayPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
   
-  
+function newPatient() {
+  unselectPatient() ;
+  showPatientEdit() ;  
+}  
   
 // Pouchdb routines
 (function() {
