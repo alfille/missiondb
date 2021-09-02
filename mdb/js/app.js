@@ -387,19 +387,15 @@ class EditPList extends FieldList {
 		console.log(patientId) ;
 		this.doc = { "_id": "" } ;
 		if ( patientId ) {
-		console.log(patientId) ;
 			db.get( patientId ).then(
 			( function(doc) {
 				this.doc = doc ;
-				console.log(doc);
 			}).bind(this)
 			).then(( function() {
 				console.log(this.doc);	
 				for ( let i=0; i<this.fieldlist.length; ++i ) {
 					let contain = this.li[2*i+1].querySelector('input') ;
 					let field = this.fieldlist[i][0] ;
-					console.log(field) ;
-					console.log(this.doc[field]);
 					if ( field in this.doc ) {
 						contain.value = this.doc[field] ;
 					} else {
@@ -408,7 +404,6 @@ class EditPList extends FieldList {
 				}
 			}).bind(this)
 			).catch( function(err) {
-		console.log(patientId) ;
 				// no matching record
 				console.log(err);
 				console.log("unmatched");
@@ -419,7 +414,10 @@ class EditPList extends FieldList {
 		
 		this.ul.addEventListener( 'change', (e) => {
 			console.log("enable") ;
+			console.log(document.getElementById("saveeditpatient")) ;
+			console.log(document.getElementById("saveeditpatient").disabled) ;
 			document.getElementById("saveeditpatient").disabled = false ;
+			console.log(document.getElementById("saveeditpatient").disabled) ;
 			}) ;
 	}
     
@@ -440,7 +438,11 @@ class EditPList extends FieldList {
 		  this.toId() ;
 		}
 		selectPatient( this._id ) ;
-		db.put(doc).catch( function(err) {
+		db.put(this.doc).then( function(d) {
+			displayPatientEdit = null ;
+			showPatientOpen() ;
+			return true ;
+		}).catch( function(err) {
 			console.log(err) ;
 		}) ;
 	}
