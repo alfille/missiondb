@@ -375,66 +375,75 @@ class OpenPList extends FieldList {
 }
 
 class EditPList extends FieldList {
-  constructor( idname, parent ) {
-      super( idname, parent, PatientInfoList ) ;
-      document.getElementById("saveeditpatient").disabled = true ;
-      for ( let i=0; i<this.fieldlist.length; ++i ) {
-        let inp = document.createElement("input") ;
-        inp.type = this.fieldlist[i][1] ;
-        this.li[2*i+1].appendChild(inp) ;
-      }
+	constructor( idname, parent ) {
+		super( idname, parent, PatientInfoList ) ;
+		document.getElementById("saveeditpatient").disabled = true ;
+		for ( let i=0; i<this.fieldlist.length; ++i ) {
+			let inp = document.createElement("input") ;
+			inp.type = this.fieldlist[i][1] ;
+			this.li[2*i+1].appendChild(inp) ;
+		}
 
-      let doc ;
-	  if ( patientId ) {
-		  db.get( patientId ).then( function(doc) {
-			this._rev = doc["_rev"] ;
-			this._id = doc["_id"] ;
-			}).catch( function(err) {
+		console.log(patientId) ;
+		this.doc = { "_id": "" } ;
+		if ( patientId ) {
+		console.log(patientId) ;
+			db.get( patientId ).then(
+			( function(doc) {
+				this.doc = doc ;
+				console.log(doc);
+			}).bind(this)
+			).then(( function() {
+				console.log(this.doc);	
+				for ( let i=0; i<this.fieldlist.length; ++i ) {
+					let contain = this.li[2*i+1].querySelector('input') ;
+					let field = this.fieldlist[i][0] ;
+					console.log(field) ;
+					console.log(this.doc[field]);
+					if ( field in this.doc ) {
+						contain.value = this.doc[field] ;
+					} else {
+						contain.value = "" ;
+					}
+				}
+			}).bind(this)
+			).catch( function(err) {
+		console.log(patientId) ;
 				// no matching record
+				console.log(err);
+				console.log("unmatched");
 			});
-	    }
+		} else {
+			console.log("No patientID");
+		}
 		
-        for ( let i=0; i<this.fieldlist.length; ++i ) {
-          let contain = this.li[2*i+1].querySelector('input') ;
-          if ( doc ) {
-            contain.value = doc[this.fieldlist[i][0]] ;
-          } else {
-            contain.value = "" ;
-        }
-      }
-      this.ul.addEventListener( 'change', (e) => {
-		  document.log("enable") ;
-		document.getElementById("saveeditpatient").disabled = false ;
-      }) ;
-    }
+		this.ul.addEventListener( 'change', (e) => {
+			console.log("enable") ;
+			document.getElementById("saveeditpatient").disabled = false ;
+			}) ;
+	}
     
     tolist() {
-      let a = {}
       for ( let i=0; i<this.fieldlist.length; ++i ) {
-        a[this.fieldlist[i][0]] =  this.li[2*i+1].querySelector('input').value ;
-        console.log(a) ;
+        this.doc[this.fieldlist[i][0]] =  this.li[2*i+1].querySelector('input').value ;
       }
-      return a ;
     }
     
-    toId(a) {
-      return [a.LastName,a.FirstName,a.DOB].join(";") ;
+    toId() {
+      this.doc["_id"] = [this.doc.LastName,thisdoc.FirstName,this.doc.DOB].join(";") ;
     }
     
     add() {
-      let doc = this.tolist() ;
-      console.log(doc) ;
-      if ( this._id ) {
-        doc["_id"] = this._id ;
-        doc["_rev"] = this._rev ;
-        selectPatient( this._id ) ;
-      } else {
-        doc["_id"] = this.toId(doc) ;
-      }
-      db.put(doc).catch( function(err) {
-        console.log(err) ;
-      }) ;
-    }
+		this.tolist() ;
+		console.log(this.doc) ;
+		if ( this._id == "" ) {
+		  this.toId() ;
+		}
+		selectPatient( this._id ) ;
+		db.put(doc).catch( function(err) {
+			console.log(err) ;
+		}) ;
+	}
 }
 
 function newPatient() {
