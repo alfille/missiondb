@@ -21,7 +21,7 @@ tr:hover {
   background: lightyellow ;
 }
 tr.choice {
-  background: lightyellow ;
+  background: lightyellow !important;
 }
 td:first-child {
   display:none;
@@ -36,6 +36,10 @@ tr, li {
 
 tr.odd, li.odd {
   background: #E6F2FF ;
+}
+
+tr.odd:hover, li.odd:hover {
+  background: lightyellow ;
 }
 
 tr.head {

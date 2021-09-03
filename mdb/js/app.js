@@ -10,6 +10,8 @@ console.log(db.adapter); // prints 'idb'
 console.log(db); // prints 'idb'
 var remoteCouch = 'http://localhost:5984/mdb';
 
+var DbaseVersion = "v0" ;
+
 var PatientInfoList = [
     ["LastName","text"],
     ["FirstName","text"],
@@ -42,8 +44,9 @@ function showPatientEdit() {
 }
 
 function showPatientOpen() {
+	displayState = "PatientOpen" ;
     if ( patientId ) {
-        displayState = "PatientOpen" ;
+		console.log(patientId);
     } else {
         displayState = "PatientList" ;
     }
@@ -123,7 +126,9 @@ function displayStateChange() {
             break ;
         case "PatientOpen":
             if ( patientId ) {
+console.log(displayPatientOpen);
                 displayPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
+console.log(displayPatientOpen);
             } else {
                 showPatientList() ;
             }
@@ -145,7 +150,6 @@ function displayStateChange() {
                 showPatientList() ;
             }
             break ;
-
     }
 }
 
@@ -300,21 +304,21 @@ class dataTable extends sortTable {
 
         doclist.forEach( function(doc,n) {
             let row = tbody.insertRow(n) ;
-            let content = doc.doc ;
+            let record = doc.doc ;
             if ( n%2 == 1 ) {
                 row.classList.add('odd') ;
             }
             row.addEventListener( 'click', (e) => {
-                selectPatient( content._id ) ;
+                selectPatient( record._id ) ;
             }) ;
             row.addEventListener( 'dblclick', (e) => {
-                selectPatient( content._id ) ;
+                selectPatient( record._id ) ;
                 showPatientOpen() ;
             }) ;
             collist.forEach( function(colname,i) {
                 let c = row.insertCell(i) ;
-                if ( colname in content ) {
-                    c.innerHTML = content[colname] ;
+                if ( colname in record ) {
+                    c.innerHTML = record[colname] ;
                 } else {
                     c.innerHTML = "" ;
                 }
@@ -365,11 +369,13 @@ class FieldList {
 class OpenPList extends FieldList {
     constructor( idname, parent ) {
         super( idname, parent, PatientInfoList ) ;
+        console.log("Open") ;
         this.ul.addEventListener( 'dblclick', (e) => {
             editPatient() ;
         }) ;
 
         db.get( patientId ).then(( function(doc) {
+			console.log(doc) ;
             for ( let i=0; i < this.fieldlist.length; ++i ) {
                 this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(doc[this.fieldlist[i][0]]))) ;
             }
@@ -379,6 +385,7 @@ class OpenPList extends FieldList {
                 this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(''))) ;
             }
             }).bind(this));
+        console.log("Open") ;
     }
 }
 
@@ -427,7 +434,7 @@ class EditPList extends FieldList {
     }
     
     toId() {
-        this.doc._id = [ this.doc.LastName, this.doc.FirstName, this.doc.DOB ].join(";") ;
+        this.doc._id = [ DbaseVersion, this.doc.LastName, this.doc.FirstName, this.doc.DOB ].join(";") ;
     }
     
     add() {
@@ -437,7 +444,6 @@ class EditPList extends FieldList {
         }
         selectPatient( this.doc._id ) ;
         db.put(this.doc).then( function(d) {
-            displayPatientEdit = null ;
             showPatientOpen() ;
             return true ;
         }).catch( function(err) {
@@ -463,8 +469,6 @@ function unopenPatient() {
 
 function savePatient() {
     displayPatientEdit.add() ;
-    displayPatientEdit = null ;
-    showPatientOpen() ;
 }
   
 function nosavePatient() {
