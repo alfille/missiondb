@@ -48,22 +48,6 @@ ul {
   padding: 0;
 }
 
-button {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-size: 100%;
-  vertical-align: baseline;
-  font-family: inherit;
-  color: inherit;
-  -webkit-appearance: none;
-  /*-moz-appearance: none;*/
-  -ms-appearance: none;
-  -o-appearance: none;
-  appearance: none;
-}
-
 .divbutton {
   margin: 2px;
   padding: 4px;
@@ -79,6 +63,16 @@ button {
   -ms-appearance: none;
   -o-appearance: none;
   appearance: none;
+}
+
+.divbutton:disabled {
+  color: grey;
+  background: #9eb6ff ;
+}
+ 
+#deletebutton {
+  background: red;
+  float: right;
 }
 
 body {
@@ -149,11 +143,6 @@ body {
   left: 0;
   height: 20px;
   z-index: 1;
-}
-
-#patientCount {
-  float: left;
-  text-align: left;
 }
 
 #info {
