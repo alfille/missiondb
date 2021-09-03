@@ -445,7 +445,6 @@ class EditPList extends FieldList {
         selectPatient( this.doc._id ) ;
         db.put(this.doc).then( function(d) {
             showPatientOpen() ;
-            return true ;
         }).catch( function(err) {
             console.log(err) ;
         }) ;
