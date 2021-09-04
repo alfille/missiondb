@@ -138,27 +138,14 @@ body {
   display: none ;
 }
 
-#footer {
-  color: #777;
-  padding: 0 15px;
+footer {
+  color: darkblue;
   position: absolute;
   right: 0;
-  //bottom: -31px;
   left: 0;
-  height: 20px;
-  z-index: 1;
-}
-
-#info {
-  margin: 65px auto 0;
-  color: #a6a6a6;
-  font-size: 12px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  height: 10px;
   text-align: center;
-}
-
-#info a {
-  color: inherit;
+  font-size: 12px;
 }
 
 .hidden{

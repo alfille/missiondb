@@ -2,8 +2,11 @@ var displayState ;
 var patientId ;
 var commentId ;
 var editor = new MediumEditor('.editable');
-var displayPatientOpen  ;
-var displayPatientEdit  ;
+var objectPatientOpen  ;
+var objectPatientEdit  ;
+var objectCommentList ;
+var objectCommentEdit ;
+var userName ;
   
 var db = new PouchDB('mdb') ;
 console.log(db.adapter); // prints 'idb'
@@ -63,9 +66,16 @@ function showCommentEdit() {
 }
 
 function selectPatient( pid ) {
+    if ( patientId != pid ) {
+        // change patient -- monnents dont apply
+        commentId = undefined ;
+        deleteCookie( "commentId" ) ;
+    }
+        
     patientId = pid ;
     setCookie( "patientId", pid ) ;
     if ( displayState == "PatientList" ) {
+        // highlight the list row
         let rows = document.getElementById("PatientTable").rows ;
         for ( let i = 0 ; i < rows.length ; ++i ) {
             if ( rows[i].cells[0].innerHTML == pid ) {
@@ -112,8 +122,13 @@ function displayStateChange() {
 
     switch( displayState ) {
         case "PatientList":
-            db.allDocs({include_docs: true, descending: true}).then( function(doc) {
-                displayTable.fill(doc.rows) ;
+            objectPatientOpen = null ;
+            objectPatientEdit = null ;
+            objectCommentList = null ;
+            objectCommentOpen = null ;
+            
+            db.allDocs({include_docs: true, descending: true}).then( function(docs) {
+                objectPatientList.fill(docs.rows) ;
                 if ( patientId ) {
                     selectPatient( patientId ) ;
                 } else {
@@ -124,23 +139,39 @@ function displayStateChange() {
                 });
             break ;
         case "PatientOpen":
+            objectPatientEdit = null ;
+            objectCommentList = null ;
+            objectCommentOpen = null ;
+            
             if ( patientId ) {
-                displayPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
+                objectPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
             } else {
                 showPatientList() ;
             }
             break ;
         case "PatientEdit":
-            displayPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
+            objectPatientOpen = null ;
+            objectCommentList = null ;
+            objectCommentOpen = null ;
+            
+            objectPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
             break ;
         case "CommentList":
+            objectPatientOpen = null ;
+            objectPatientEdit = null ;
+            objectCommentEdit = null ;
+            
             if ( patientId ) {
-                CommentList() ;
+                objectCommentList = new CommentList( commentListSection ) ;
             } else {
                 showPatientList() ;
             }
             break ;
         case "CommentEdit":
+            objectPatientOpen = null ;
+            objectCommentList = null ;
+            objectCommentOpen = null ;
+            
             if ( patientId && commentId ) {
                 CommentEdit() ;
             } else {
@@ -325,7 +356,7 @@ class dataTable extends sortTable {
   
 }
 
-var displayTable = new dataTable( "PatientTable", patientListSection, ["_id", "LastName", "FirstName", "DOB","Dx","Procedure" ] ) ;
+var objectPatientList = new dataTable( "PatientTable", patientListSection, ["_id", "LastName", "FirstName", "DOB","Dx","Procedure" ] ) ;
 
 class FieldList {
     constructor( idname, parent, fieldlist ) {
@@ -367,19 +398,21 @@ class OpenPList extends FieldList {
     constructor( idname, parent ) {
         super( idname, parent, PatientInfoList ) ;
         this.ul.addEventListener( 'dblclick', (e) => {
-            editPatient() ;
+            showPatientEdit() ;
         }) ;
 
         db.get( patientId ).then(( function(doc) {
             for ( let i=0; i < this.fieldlist.length; ++i ) {
                 this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(doc[this.fieldlist[i][0]]))) ;
             }
-        }).bind(this)).catch(( function(err) {
+        }).bind(this)
+        ).catch(( function(err) {
             console.log(err) ;
             for ( let i=0; i < this.fieldlist.length; ++i ) {
                 this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(''))) ;
             }
-            }).bind(this));
+            }).bind(this)
+        );
     }
 }
 
@@ -450,25 +483,10 @@ function newPatient() {
     showPatientEdit() ;  
 }
 
-function editPatient() {
-    displayPatientOpen = null ;
-    showPatientEdit() ;
-}
-
-function unopenPatient() {
-    displayPatientOpen = null ;
-    showPatientList() ;
-}
-
 function savePatient() {
-    displayPatientEdit.add() ;
+    objectPatientEdit.add() ;
 }
   
-function nosavePatient() {
-    displayPatientEdit = null ;
-    showPatientOpen() ;
-}
-
 function deletePatient() {
     if ( patientId ) {
         db.get( patientId ).then( function(doc) {
@@ -487,7 +505,68 @@ function deletePatient() {
         });
     }
 }    
-  
+
+class CommentList {
+    constructor( parent ) {
+        if ( parent == null ) {
+            parent = document.body ;
+        }
+        let uls = parent.getElementsByTagName('ul') ;
+        if (uls.length > 0 ) {
+            console.log(usl) ;
+            parent.removeChild(uls[0]) ;
+        }
+
+        let ul = document.createElement('ul') ;
+        ul.setAttribute( "id", "CommentList" ) ;
+        let li = document.createElement("li") ;
+        li.appendChild(document.createTextNode("Notes and Comments")) ;
+        ul.appendChild(li) ;
+
+        li = document.createElement("li") ;
+        li.classList.add("odd") ;
+        let id = patientId.split(';');
+        li.appendChild(document.createTextNode("Pateint: "+id[1]+", "+id[2]+"    DOB: "+id[3])) ;
+
+        ul.appendChild(li) ;
+
+        this.ul = ul ;
+        parent.appendChild(ul) ;
+
+        // get comments
+        let startkey = [ patientId, "Comment" ].join(";") ;
+        let clist ;
+        db.allDocs({
+            include_docs: true,
+            attachments: true,
+            startkey: startkey,
+            endkey: startkey+';\fff0'
+        }).then(( function(docs) {
+            console.log(docs);
+            doc.rows.forEach( function(v, i) {
+                console.log(v) ;
+            }) ;
+            doc.rows.forEach( function(v, i) {
+                let li = document.createElement("li") ;
+                li.appendChild(document.createTextNode(v._id.split(';').pop()+"  "+(v.author||"anonymous"))) ;
+                ul.appendChild(li) ;
+
+                li = document.createElement("li") ;
+                li.classList.add("odd") ;
+                ul.appendChild(li) ;
+            }) ;
+            this.ul = ul ;
+            parent.appendChild(ul) ;
+            this.li = this.ul.getElementsByTagName('li')
+                
+        }).bind(this)
+        ).catch( function(err) {
+            console.log(err) ;
+        }); 
+    }
+}
+
+ 
 // Pouchdb routines
 (function() {
 
@@ -536,6 +615,12 @@ function deletePatient() {
     }
     displayState = getCookie( "displayState" ) ;
     displayStateChange() ;
+    patientId = getCookie( "patientd" ) ;
+    if ( patientId ) {
+        selectPatient( patientId ) ;
+    }
+    userName = getCookie( "userName" ) ;
+    
 
 })();
 

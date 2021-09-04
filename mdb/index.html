@@ -22,15 +22,15 @@
       </div>
       <div id="patientOpenDiv">
         <div id="patientOpenSection" ></div>
-        <button type="button" class="divbutton" onclick="editPatient()">Edit Patient Data</button>
-        <button type="button" class="divbutton" onclick="commentPatient()">Case Comments</button>
-        <button type="button" class="divbutton" onclick="unopenPatient()">Return</button>
+        <button type="button" class="divbutton" onclick="showPatientEdit()">Edit Patient Data</button>
+        <button type="button" class="divbutton" onclick="showCommentList()">Case Comments</button>
+        <button type="button" class="divbutton" onclick="showPatientList()">Return</button>
         <button type="button" class="divbutton" onclick="deletePatient()" id="deletebutton">Delete Patient</button>
       </div>
       <div id="patientEditDiv">
         <div id="patientEditSection" ></div>
         <button type="button" class="divbutton" onclick="savePatient()" id="saveeditpatient">Save</button>
-        <button type="button" class="divbutton" onclick="nosavePatient()">Cancel</button>
+        <button type="button" class="divbutton" onclick="showPatientOpen()">Cancel</button>
       </div>
       <div id="commentListDiv">
         <div id="commentListSection" ></div>
@@ -45,7 +45,7 @@
         <button type="button" class="divbutton" onclick="commentPatient()">Cancel</button>
       </div>
     </section>
-    <footer id="info">
+    <footer>
       <p><a href="http://github.com/alfille/missiondb">Mission Database</a>&nbsp;<div id="syncstatus">Sync Status</div></p>
     </footer>
     <!-- pouchdb -->
