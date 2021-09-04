@@ -44,9 +44,8 @@ function showPatientEdit() {
 }
 
 function showPatientOpen() {
-	displayState = "PatientOpen" ;
+    displayState = "PatientOpen" ;
     if ( patientId ) {
-		console.log(patientId);
     } else {
         displayState = "PatientList" ;
     }
@@ -126,9 +125,7 @@ function displayStateChange() {
             break ;
         case "PatientOpen":
             if ( patientId ) {
-console.log(displayPatientOpen);
                 displayPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
-console.log(displayPatientOpen);
             } else {
                 showPatientList() ;
             }
@@ -369,13 +366,11 @@ class FieldList {
 class OpenPList extends FieldList {
     constructor( idname, parent ) {
         super( idname, parent, PatientInfoList ) ;
-        console.log("Open") ;
         this.ul.addEventListener( 'dblclick', (e) => {
             editPatient() ;
         }) ;
 
         db.get( patientId ).then(( function(doc) {
-			console.log(doc) ;
             for ( let i=0; i < this.fieldlist.length; ++i ) {
                 this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(doc[this.fieldlist[i][0]]))) ;
             }
@@ -385,7 +380,6 @@ class OpenPList extends FieldList {
                 this.li[2*i+1].appendChild(document.createTextNode(this.nonnullstring(''))) ;
             }
             }).bind(this));
-        console.log("Open") ;
     }
 }
 
@@ -499,12 +493,21 @@ function deletePatient() {
 
     'use strict';
 
-    // EDITING STARTS HERE (you dont need to edit anything above this line)
-
     db.changes({
         since: 'now',
         live: true
-    }).on('change', showPatientList);
+    }).on('change', function(change) {
+        switch (displayState) {
+            case "PatientList":
+                showPatientList();
+                break ;
+            case "PatientOpen":
+            case "PatientEdit":
+            case "CommentList":
+            case "CommentEdit":
+                break ;
+        }
+    });
 
     // Initialise a sync with the remote server
     function sync() {
