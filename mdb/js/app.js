@@ -11,7 +11,7 @@ var userName ;
 var db = new PouchDB('mdb') ;
 console.log(db.adapter); // prints 'idb'
 console.log(db); // prints 'idb'
-var remoteCouch = 'http://localhost:5984/mdb';
+var remoteCouch = 'http://192.168.1.5:5984/mdb';
 
 var DbaseVersion = "v0" ;
 
@@ -203,9 +203,9 @@ function getCookie( cname ) {
 }
 
 class sortTable {
-    dir = 1 ;
-    lastth = -1 ;
     constructor(tname) {
+		this.dir = 1 ;
+		this.lastth = -1 ;
         this.tname = tname ;
         tname.onclick = this.allClick.bind(this) ;
     }
@@ -538,13 +538,15 @@ function selectComment( cid ) {
     if ( displayState == "CommentList" ) {
         // highlight the list row
         let li = document.getElementById("CommentList").li ;
-        for ( let l of li ) {
-            if ( l.getAttribute("data-id") == commentId ) {
-                l.classList.add('choice') ;
-            } else {
-                l.classList.remove('choice') ;
-            }
-        }
+		if ( li && (li.length > 0) ) {
+			for ( let l of li ) {
+				if ( l.getAttribute("data-id") == commentId ) {
+					l.classList.add('choice') ;
+				} else {
+					l.classList.remove('choice') ;
+				}
+			}
+		}
     }
     document.getElementById("editreviewcomment").disabled = false ;
 }
@@ -554,9 +556,11 @@ function unselectComment() {
     deleteCookie( "commentId" ) ;
     if ( displayState == "CommentList" ) {
         let li = document.getElementById("CommentList").li ;
-        for ( let l of li ) {
-            l.classList.remove('choice') ;
-        }
+        if ( li && (li.length > 0) ) {
+			for ( let l of li ) {
+				l.classList.remove('choice') ;
+			}
+		}
     }
     document.getElementById("editreviewcomment").disabled = true ;
 }
@@ -604,26 +608,26 @@ class CommentList extends CommentCommon {
             endkey: startkey+';\fff0'
         }).then(( function(docs) {
             console.log(docs);
-            doc.rows.forEach( function(v, i) {
-                console.log(v) ;
+            docs.rows.forEach( function(comment) {
+                console.log(comment) ;
             }) ;
-            doc.rows.forEach( function(v, i) {
+            docs.rows.forEach( function(comment, i) {
                 let li = document.createElement("li") ;
-                li.appendChild(document.createTextNode(v._id.split(';').pop()+"  "+(v.author||"anonymous"))) ;
+                li.appendChild(document.createTextNode(comment._id.split(';').pop()+"  "+(comment.author||"anonymous"))) ;
                 ul.appendChild(li) ;
 
                 li = document.createElement("li") ;
                 li.classList.add("odd") ;
-                li.setAttribute("data-id", v._id ) ;
-                if ( commentId == v._id ) {
+                li.setAttribute("data-id", comment._id ) ;
+                if ( commentId == comment._id ) {
                     li.classList.add("choice") ;
                 }
                     
                 li.addEventListener( 'click', (e) => {
-                    selectComment( v._id ) ;
+                    selectComment( comment._id ) ;
                 }) ;
                 li.addEventListener( 'dblclick', (e) => {
-                    selectComment( v._id ) ;
+                    selectComment( comment._id ) ;
                     showCommentEdit() ;
                 }) ;
                 ul.appendChild(li) ;
