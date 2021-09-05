@@ -502,7 +502,36 @@ function deletePatient() {
             console.log(err) ;
         });
     }
+}
+
+function newComment() {
+    unselectComment() ;
+    showCommentEdit() ;  
+}
+
+function saveComment() {
+    objectCommentEdit.add() ;
+}
+  
+function deleteComment() {
+    if ( commentId ) {
+        db.get( commentId ).then( function(doc) {
+            if ( confirm("Delete comment on psatient" + commentId.split(';')[2] + " " + commentId.split(';')[1] + " " +  + commentId.split(';')[4] + ".\n -- Are you sure?") ) {
+                return doc ;
+            } else {
+                throw "No delete" ;
+            }           
+        }).then( function(doc) { 
+            return db.remove(doc) ;
+        }).then( function() {
+            unselectComment() ;
+            showCommentList() ;
+        }).catch( function(err) {
+            console.log(err) ;
+        });
+    }
 }    
+    
 function selectComment( cid ) {
     commentId = cid ;
     setCookie( "commentId", cid ) ;
