@@ -20,7 +20,7 @@ th:hover {
 tr:hover {
   background: lightyellow ;
 }
-tr.choice {
+tr.choice li,choice {
   background: lightyellow !important;
 }
 td:first-child {

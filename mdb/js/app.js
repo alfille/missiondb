@@ -67,9 +67,8 @@ function showCommentEdit() {
 
 function selectPatient( pid ) {
     if ( patientId != pid ) {
-        // change patient -- monnents dont apply
-        commentId = undefined ;
-        deleteCookie( "commentId" ) ;
+        // change patient -- comments dont apply
+        unselectComment() ;
     }
         
     patientId = pid ;
@@ -91,8 +90,7 @@ function selectPatient( pid ) {
 function unselectPatient() {
     patientId = undefined ;
     deleteCookie( "patientId" ) ;
-    commentId = undefined ;
-    deleteCookie( "commentId" ) ;
+    unselectComment() ;
     if ( displayState == "PatientList" ) {
         let rows = document.getElementById("PatientTable").rows ;
         for ( let i = 0 ; i < rows.length ; ++i ) {
@@ -505,9 +503,38 @@ function deletePatient() {
         });
     }
 }    
+function selectComment( cid ) {
+    commentId = cid ;
+    setCookie( "commentId", cid ) ;
+    if ( displayState == "CommentList" ) {
+        // highlight the list row
+        let li = document.getElementById("CommentList").li ;
+        for ( let l of li ) {
+            if ( l.getAttribute("data-id") == commentId ) {
+                l.classList.add('choice') ;
+            } else {
+                l.classList.remove('choice') ;
+            }
+        }
+    }
+    document.getElementById("editreviewcomment").disabled = false ;
+}
 
-class CommentList {
-    constructor( parent ) {
+function unselectComment() {
+    commentId = undefined ;
+    deleteCookie( "commentId" ) ;
+    if ( displayState == "CommentList" ) {
+        let li = document.getElementById("CommentList").li ;
+        for ( let l of li ) {
+            l.classList.remove('choice') ;
+        }
+    }
+    document.getElementById("editreviewcomment").disabled = true ;
+}
+
+
+class CommentCommon {
+    constructor( parent, pageid ) {
         if ( parent == null ) {
             parent = document.body ;
         }
@@ -518,7 +545,7 @@ class CommentList {
         }
 
         let ul = document.createElement('ul') ;
-        ul.setAttribute( "id", "CommentList" ) ;
+        ul.setAttribute( "id", pageid ) ;
         let li = document.createElement("li") ;
         li.appendChild(document.createTextNode("Notes and Comments")) ;
         ul.appendChild(li) ;
@@ -526,16 +553,21 @@ class CommentList {
         li = document.createElement("li") ;
         li.classList.add("odd") ;
         let id = patientId.split(';');
-        li.appendChild(document.createTextNode("Pateint: "+id[1]+", "+id[2]+"    DOB: "+id[3])) ;
+        li.appendChild(document.createTextNode("Patient: "+id[1]+", "+id[2]+"    DOB: "+id[3])) ;
 
         ul.appendChild(li) ;
 
         this.ul = ul ;
         parent.appendChild(ul) ;
+    }
+}
+
+class CommentList extends CommentCommon {
+    constructor( parent ) {
+        super( parent, "CommentList" ) ;
 
         // get comments
         let startkey = [ patientId, "Comment" ].join(";") ;
-        let clist ;
         db.allDocs({
             include_docs: true,
             attachments: true,
@@ -553,10 +585,20 @@ class CommentList {
 
                 li = document.createElement("li") ;
                 li.classList.add("odd") ;
+                li.setAttribute("data-id", v._id ) ;
+                if ( commentId == v._id ) {
+                    li.classList.add("choice") ;
+                }
+                    
+                li.addEventListener( 'click', (e) => {
+                    selectComment( v._id ) ;
+                }) ;
+                li.addEventListener( 'dblclick', (e) => {
+                    selectComment( v._id ) ;
+                    showCommentEdit() ;
+                }) ;
                 ul.appendChild(li) ;
             }) ;
-            this.ul = ul ;
-            parent.appendChild(ul) ;
             this.li = this.ul.getElementsByTagName('li')
                 
         }).bind(this)
@@ -566,6 +608,78 @@ class CommentList {
     }
 }
 
+class EditComment extends CommentCommon{
+    constructor( parent ) {
+        super( parent, "CommentEdit" ) ;
+
+        let li = document.createElement("li") ;
+        let li2 = document.createElement("li") ;
+        
+        this.doc = {} ;
+
+        if ( commentId ) {
+            db.get( commentId ).then (( function(doc) {
+                li.appendChild(document.createTextNode("New comment")) ;
+                this.ul.appendChild(li) ;
+                li2.appendChild( this.commentfield("") );
+                this.appendChild(li2) ;
+            }).bind(this)
+            );
+                
+        } else {
+            li.appendChild(document.createTextNode("New comment")) ;
+            this.ul.appendChild(li) ;
+            
+            li2.appendChild( this.commentfield("") ) ;
+            this.appendChild(li2) ;
+        }
+            
+        li.appendChild(document.createTextNode("Notes and Comments")) ;
+        this.ul.appendChild(li) ;
+        
+        // get comment
+        db.allDocs({
+            include_docs: true,
+            attachments: true,
+            startkey: startkey,
+            endkey: startkey+';\fff0'
+        }).then(( function(docs) {
+            console.log(docs);
+            doc.rows.forEach( function(v, i) {
+                console.log(v) ;
+            }) ;
+            doc.rows.forEach( function(v, i) {
+                let li = document.createElement("li") ;
+                li.appendChild(document.createTextNode(v._id.split(';').pop()+"  "+(v.author||"anonymous"))) ;
+                ul.appendChild(li) ;
+
+                li = document.createElement("li") ;
+                li.classList.add("odd") ;
+                li.setAttribute("data-id", v._id ) ;
+                if ( commentId == v._id ) {
+                    li.classList.add("choice") ;
+                }
+                    
+                li.addEventListener( 'click', (e) => {
+                    selectComment( v._id ) ;
+                }) ;
+                li.addEventListener( 'dblclick', (e) => {
+                    selectComment( v._id ) ;
+                    showCommentEdit() ;
+                }) ;
+                ul.appendChild(li) ;
+            }) ;
+            this.li = this.ul.getElementsByTagName('li')
+                
+        }).bind(this)
+        ).catch( function(err) {
+            console.log(err) ;
+        }); 
+    }
+}
+
+        
+    
  
 // Pouchdb routines
 (function() {
