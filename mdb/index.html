@@ -47,10 +47,13 @@
       </div>
     </section>
     <footer>
-      <p><a href="http://github.com/alfille/missiondb">Mission Database</a>&nbsp;<div id="syncstatus">Sync Status</div></p>
+      <p><a href="http://github.com/alfille/missiondb">Mission Database</a>
+      <button type="button" id="userbutton" onclick="setUser()">User:</button>
+      <button type="button" id="remotebutton" onclick="setRemote()">Remote:</button>
+      <div id="syncstatus">Sync Status</div></p>
     </footer>
     <!-- pouchdb -->
-    <script src="//cdn.jsdelivr.net/pouchdb/3.0.2/pouchdb.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/pouchdb@7.2.1/dist/pouchdb.min.js"></script>
     <!-- medium-editor -->
     <script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">

@@ -711,9 +711,50 @@ class EditComment extends CommentCommon{
     }
 }
 
-        
-    
- 
+function setUserButton() {
+	if ( userName ) {
+		document.getElementById("userbutton").innerHTML = "User: "+userName ;
+	} else {    
+		document.getElementById("userbutton").innerHTML = "User?" ;
+	}
+}
+function setUser() {
+	let un = prompt( "User name:",userName ) ;
+	if ( un ) {
+		userName = un ;
+		setCookie( "userName", un ) ;
+		setUserButton() ;
+	}
+}
+userName = getCookie( "userName" ) ;
+setUserButton() ;
+		  
+var remoteSync = null ;
+function setRemoteButton() {
+	if ( remoteCouch ) {
+		document.getElementById("remotebutton").innerHTML = "Remote CouchDB: "+remoteCouch ;
+	} else {    
+		document.getElementById("remotebutton").innerHTML = "Remote CouchDB: http://host:5984" ;
+	}
+}
+function setRemote() {
+	let un = prompt( "Remote CouchDB address:", remoteCouch ) ;
+	let rem = remoteCouch ;
+	if ( un ) {
+		remoteCouch = un ;
+		setCookie( "remoteCouch", un ) ;
+		setRemoteButton() ;
+		if ( !remoteSync ) {
+			sync() ;
+		} else if ( rem !== un ) {
+			remoteSync.cancel();
+			sync() ;
+		}
+	}
+}
+remoteCouch = getCookie( "remoteCouch" ) ;
+setRemoteButton() ;
+		  
 // Pouchdb routines
 (function() {
 
@@ -739,7 +780,8 @@ class EditComment extends CommentCommon{
     function sync() {
         let sync = document.getElementById("syncstatus") ;
         sync.innerHTML = "Sync status: syncing..." ;
-        db.sync( remoteCouch, {
+        console.log(remoteCouch+'/mdb') ;
+        remoteSync = db.sync( remoteCouch+'/mdb', {
             live: true,
             retry: true
         }).on('change', function(info) {
@@ -766,7 +808,6 @@ class EditComment extends CommentCommon{
     if ( patientId ) {
         selectPatient( patientId ) ;
     }
-    userName = getCookie( "userName" ) ;
     
 
 })();

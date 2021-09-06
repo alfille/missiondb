@@ -155,4 +155,8 @@ footer {
 #syncstatus {
   background: paleblue;
   border: 4px;
-  }
+}
+
+#userbutton, #remotebutton {
+  background: #99ddff;
+}
