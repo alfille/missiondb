@@ -729,29 +729,6 @@ function setUser() {
 userName = getCookie( "userName" ) ;
 setUserButton() ;
 		  
-// Initialise a sync with the remote server
-var remoteSync = null ;
-function sync() {
-	let synctext = document.getElementById("syncstatus") ;
-	synctext.innerHTML = "Sync status: syncing..." ;
-	console.log(remoteCouch+'/mdb') ;
-	remoteSync = db.sync( remoteCouch+'/mdb', {
-		live: true,
-		retry: true
-	}).on('change', function(info) {
-		synctext.innerHTML = "Sync status: changed";
-	}).on('paused', function(err) {
-		synctext.innerHTML = "Sync status: paused";
-	}).on('active', function() {
-		synctext.innerHTML = "Sync status: active";
-	}).on('denied', function(err) {
-		synctext.innerHTML = "Sync status: denied "+err;
-	}).on('complete', function(info) {
-		synctext.innerHTML = "Sync status: complete";
-	}).on('error', function(err) {
-		synctext.innerHTML = "Sync status: error "+err ;
-	});
-}
 
 function setRemoteButton() {
 	if ( remoteCouch ) {
@@ -767,14 +744,10 @@ function setRemote() {
 		remoteCouch = un ;
 		setCookie( "remoteCouch", un ) ;
 		setRemoteButton() ;
-		if ( !remoteSync ) {
-			sync() ;
-		} else if ( rem !== un ) {
-			remoteSync.cancel();
-			sync() ;
-		}
+		window.location.reload(false) ;
 	}
 }
+
 remoteCouch = getCookie( "remoteCouch" ) ;
 setRemoteButton() ;
 		  
@@ -800,6 +773,29 @@ setRemoteButton() ;
                 break ;
         }
     });
+
+	// Initialise a sync with the remote server
+	function sync() {
+		let synctext = document.getElementById("syncstatus") ;
+		synctext.innerHTML = "Sync status: syncing..." ;
+		console.log(remoteCouch+'/mdb') ;
+		db.sync( remoteCouch+'/mdb', {
+			live: true,
+			retry: true
+		}).on('change', function(info) {
+			synctext.innerHTML = "Sync status: changed";
+		}).on('paused', function(err) {
+			synctext.innerHTML = "Sync status: paused";
+		}).on('active', function() {
+			synctext.innerHTML = "Sync status: active";
+		}).on('denied', function(err) {
+			synctext.innerHTML = "Sync status: denied "+err;
+		}).on('complete', function(info) {
+			synctext.innerHTML = "Sync status: complete";
+		}).on('error', function(err) {
+			synctext.innerHTML = "Sync status: error "+err ;
+		});
+	}
 
     if (remoteCouch) {
         sync();
