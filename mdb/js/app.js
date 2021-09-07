@@ -1,7 +1,6 @@
 var displayState ;
 var patientId ;
 var commentId ;
-var editor = new MediumEditor('.editable');
 var objectPatientOpen  ;
 var objectPatientEdit  ;
 var objectCommentList ;
