@@ -5,6 +5,7 @@ var objectPatientOpen  ;
 var objectPatientEdit  ;
 var objectCommentList ;
 var objectCommentEdit ;
+var objectCommentImage ;
 var userName ;
   
 var db = new PouchDB('mdb') ;
@@ -64,6 +65,11 @@ function showCommentEdit() {
     displayStateChange() ;
 }
 
+function showCommentImage() {
+    displayState = "CommentImage" ;
+    displayStateChange() ;
+}
+
 function selectPatient( pid ) {
     if ( patientId != pid ) {
         // change patient -- comments dont apply
@@ -106,6 +112,7 @@ function displayStateChange() {
         [ "PatientOpen", "patientOpenDiv" ] ,
         [ "CommentList", "commentListDiv" ] ,
         [ "CommentEdit", "commentEditDiv" ] ,
+        [ "CommentImage","commentImageDiv"] ,
     ] ;
     for (let ds of dslist) {
         if ( displayState == ds[0] ) {
@@ -123,6 +130,7 @@ function displayStateChange() {
             objectPatientEdit = null ;
             objectCommentList = null ;
             objectCommentOpen = null ;
+            objectCommentImage= null ;
             
             db.allDocs({include_docs: true, descending: true}).then( function(docs) {
                 objectPatientList.fill(docs.rows) ;
@@ -139,6 +147,7 @@ function displayStateChange() {
             objectPatientEdit = null ;
             objectCommentList = null ;
             objectCommentOpen = null ;
+            objectCommentImage= null ;
             
             if ( patientId ) {
                 objectPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
@@ -150,6 +159,7 @@ function displayStateChange() {
             objectPatientOpen = null ;
             objectCommentList = null ;
             objectCommentOpen = null ;
+            objectCommentImage= null ;
             
             objectPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
             break ;
@@ -157,6 +167,7 @@ function displayStateChange() {
             objectPatientOpen = null ;
             objectPatientEdit = null ;
             objectCommentEdit = null ;
+            objectCommentImage= null ;
             
             if ( patientId ) {
                 objectCommentList = new CommentList( commentListSection ) ;
@@ -168,9 +179,22 @@ function displayStateChange() {
             objectPatientOpen = null ;
             objectCommentList = null ;
             objectCommentOpen = null ;
+            objectCommentImage= null ;
             
             if ( patientId && commentId ) {
                 CommentEdit() ;
+            } else {
+                showPatientList() ;
+            }
+            break ;
+        case "CommentImage":
+            objectPatientOpen = null ;
+            objectCommentList = null ;
+            objectCommentOpen = null ;
+            objectCommentEdit = null ;
+           
+            if ( patientId ) {
+                CommentImage() ;
             } else {
                 showPatientList() ;
             }
@@ -484,7 +508,7 @@ function savePatient() {
     objectPatientEdit.add() ;
 }
   
-function deletePatient() {
+ function deletePatient() {
     if ( patientId ) {
         db.get( patientId ).then( function(doc) {
             if ( confirm("Delete patient " + doc.FirstName + " " + doc.LastName + ".\n -- Are you sure?") ) {
@@ -506,6 +530,12 @@ function deletePatient() {
 function newComment() {
     unselectComment() ;
     showCommentEdit() ;  
+}
+
+function newImage() {
+    console.log("new iamge");
+    unselectComment() ;
+    showCommentImage() ;  
 }
 
 function saveComment() {
@@ -640,6 +670,11 @@ class CommentList extends CommentCommon {
     }
 }
 
+function makeCommentId() {
+    let d = new Date().toISOString() ;
+    return [ patientId, "Comment" , d ].join(";") ;
+}
+
 class EditComment extends CommentCommon{
     constructor( parent ) {
         super( parent, "CommentEdit" ) ;
@@ -710,6 +745,21 @@ class EditComment extends CommentCommon{
     }
 }
 
+function CommentImage() {
+    console.log("commentimage");
+}
+   
+function handleImage() {
+     const files = document.getElementById('imageInput')
+     const image = files.files[0];
+     console.log(files) ;
+     console.log(files.type) ;
+     console.log(image) ;
+     console.log(image.type) ;
+     // see https://www.geeksforgeeks.org/html-dom-createobjecturl-method/
+}    
+
+
 function setUserButton() {
 	if ( userName ) {
 		document.getElementById("userbutton").innerHTML = "User: "+userName ;
@@ -740,9 +790,10 @@ function setRemote() {
 	let un = prompt( "Remote CouchDB address:", remoteCouch ) ;
 	let rem = remoteCouch ;
 	if ( un ) {
-		remoteCouch = un ;
+
 		setCookie( "remoteCouch", un ) ;
 		setRemoteButton() ;
+		// start page over with new remote
 		window.location.reload(false) ;
 	}
 }
