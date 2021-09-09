@@ -133,6 +133,7 @@ function displayStateChange() {
             objectCommentImage= null ;
             
             db.allDocs({include_docs: true, descending: true}).then( function(docs) {
+				console.log
                 objectPatientList.fill(docs.rows) ;
                 if ( patientId ) {
                     selectPatient( patientId ) ;
@@ -199,6 +200,9 @@ function displayStateChange() {
                 showPatientList() ;
             }
             break ;
+		default:
+			showPatientList() ;
+			break ;
     }
 }
 
