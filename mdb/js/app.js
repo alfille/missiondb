@@ -229,6 +229,10 @@ function getCookie( cname ) {
       return res;
 }
 
+function isAndroid() {
+	return navigator.userAgent.toLowerCase().indexOf("android") > -1 ;
+}
+
 class sortTable {
     constructor(tname) {
 		this.dir = 1 ;
@@ -537,7 +541,7 @@ function newComment() {
 }
 
 function newImage() {
-    console.log("new iamge");
+    console.log("new image");
     unselectComment() ;
     showCommentImage() ;  
 }
