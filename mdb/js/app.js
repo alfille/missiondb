@@ -610,7 +610,6 @@ class CommentCommon {
         }
         let uls = parent.getElementsByTagName('ul') ;
         if (uls.length > 0 ) {
-            console.log(usl) ;
             parent.removeChild(uls[0]) ;
         }
 
@@ -756,16 +755,28 @@ class EditComment extends CommentCommon{
 function CommentImage() {
     let inp = document.getElementById("imageInput") ;
     if ( isAndroid() ) {
-        inp.remoteAttribute("capture") ;
+        inp.removeAttribute("capture") ;
     } else {
         inp.setAttribute("capture","environment");
     }
     console.log("commentimage");
 }
    
+let urlObject;
 function handleImage() {
-     const files = document.getElementById('imageInput')
-     const image = files.files[0];
+    const files = document.getElementById('imageInput')
+    const image = files.files[0];
+
+    const imagecheck = document.getElementById('imageCheck');
+
+    if (urlObject) {
+        URL.revokeObjectURL(urlObject) // only required if you do that multiple times
+    }
+    //urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
+    urlObject = URL.createObjectURL(image);
+
+    imagecheck.src = urlObject;
+
      console.log(files) ;
      console.log(files.type) ;
      console.log(image) ;
