@@ -754,6 +754,12 @@ class EditComment extends CommentCommon{
 }
 
 function CommentImage() {
+    let inp = document.getElementById("imageInput") ;
+    if ( isAndroid() ) {
+        inp.remoteAttribute("capture") ;
+    } else {
+        inp.setAttribute("capture","environment");
+    }
     console.log("commentimage");
 }
    
