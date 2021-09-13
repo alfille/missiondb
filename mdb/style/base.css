@@ -104,7 +104,7 @@ body {
 #missiondbody {
   background: #fff;
   background: rgba(255, 255, 255, 0.9);
-  margin: 100px 0 0 0;
+  margin: 50px 0 0 0;
   border: 1px solid #ccc;
   position: relative;
   border-top-left-radius: 2px;
@@ -115,9 +115,9 @@ body {
 
 #missiondbody h1 {
   position: absolute;
-  top: -120px;
+  top: -60px;
   width: 100%;
-  font-size: 70px;
+  font-size: 32px;
   font-weight: bold;
   text-align: center;
   color: #b3b3b3;
@@ -160,3 +160,19 @@ footer {
 #userbutton, #remotebutton {
   background: #99ddff;
 }
+
+.fullimage {
+  max-width: 100%;
+  height: auto ;
+}
+@media only and (orientation: portrait) {
+  .fullimage {
+    max-height: 80%;
+	width: auto ;
+  }
+}
+textarea {
+  cols: 80%;
+  rows: 4 ;
+}
+  
