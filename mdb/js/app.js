@@ -638,11 +638,13 @@ class CommentList extends CommentCommon {
 
         // get comments
         let startkey = [ patientId, "Comment" ].join(";") ;
+        console.log(startkey);
+        console.log(startkey+';\fff0');
         db.allDocs({
             include_docs: true,
             attachments: true,
             startkey: startkey,
-            endkey: startkey+';\fff0'
+            endkey: startkey+';\fff0',
         }).then(( function(docs) {
             console.log(docs);
             docs.rows.forEach( function(comment) {
@@ -667,6 +669,7 @@ class CommentList extends CommentCommon {
                     selectComment( comment._id ) ;
                     showCommentEdit() ;
                 }) ;
+                console.log(comment);
                 ul.appendChild(li) ;
             }) ;
             this.li = this.ul.getElementsByTagName('li')
@@ -763,25 +766,26 @@ function CommentImage() {
     console.log("commentimage");
 }
    
-let urlObject;
+//let urlObject;
 function handleImage() {
     const files = document.getElementById('imageInput')
     const image = files.files[0];
 
 
-    if (urlObject) {
-        URL.revokeObjectURL(urlObject) // only required if you do that multiple times
-        urlObject = null ;
-    }
+//    if (urlObject) {
+//        URL.revokeObjectURL(urlObject) // only required if you do that multiple times
+//        urlObject = null ;
+//    }
 
     // change display
     document.getElementById("commentImageDiv").style.display = "none" ;
     document.getElementById("commentImage2Div").style.display = "block" ;
 
     //urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
-    urlObject = URL.createObjectURL(image);
+//    urlObject = URL.createObjectURL(image);
 
-    document.getElementById('imageCheck').src = urlObject;
+//    document.getElementById('imageCheck').src = urlObject;
+    document.getElementById('imageCheck').src = URL.createObjectURL(image) ;
      // see https://www.geeksforgeeks.org/html-dom-createobjecturl-method/
 }    
 
@@ -809,6 +813,7 @@ function saveImage() {
         console.log(err) ;
         showCommentList() ;
     }) ;
+    document.getElementById('imageCheck').src = "" ;
 }
 
 function setUserButton() {
