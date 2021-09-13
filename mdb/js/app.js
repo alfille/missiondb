@@ -113,6 +113,7 @@ function displayStateChange() {
         [ "CommentList", "commentListDiv" ] ,
         [ "CommentEdit", "commentEditDiv" ] ,
         [ "CommentImage","commentImageDiv"] ,
+        [ "CommentImage2","commentImage2Div"] ,
     ] ;
     for (let ds of dslist) {
         if ( displayState == ds[0] ) {
@@ -767,23 +768,48 @@ function handleImage() {
     const files = document.getElementById('imageInput')
     const image = files.files[0];
 
-    const imagecheck = document.getElementById('imageCheck');
 
     if (urlObject) {
         URL.revokeObjectURL(urlObject) // only required if you do that multiple times
+        urlObject = null ;
     }
+
+    // change display
+    document.getElementById("commentImageDiv").style.display = "none" ;
+    document.getElementById("commentImage2Div").style.display = "block" ;
+
     //urlObject = URL.createObjectURL(new Blob([arrayBuffer]));
     urlObject = URL.createObjectURL(image);
 
-    imagecheck.src = urlObject;
-
-     console.log(files) ;
-     console.log(files.type) ;
-     console.log(image) ;
-     console.log(image.type) ;
+    document.getElementById('imageCheck').src = urlObject;
      // see https://www.geeksforgeeks.org/html-dom-createobjecturl-method/
 }    
 
+function saveImage() {
+    const files = document.getElementById('imageInput')
+    const image = files.files[0];
+    const text = document.getElementById("annotation") ;
+
+    db.put( {
+        _id: makeCommentId(),
+        text: text.value,
+        _attachments: {
+            image: {
+                content_type: image.type,
+                data: image,
+            }
+        }
+    }).then( function(doc) {
+        console.log(doc) ;
+        return db.get( doc.id ) ;
+    }).then( function(doc) {
+        console.log(doc) ;
+        showCommentList() ;
+    }).catch( function(err) {
+        console.log(err) ;
+        showCommentList() ;
+    }) ;
+}
 
 function setUserButton() {
 	if ( userName ) {

@@ -46,9 +46,15 @@
         <button type="button" class="divbutton" onclick="deleteComment()" id="deletebutton">Delete Comment</button>
       </div>
       <div id="commentImageDiv">
-        <div id="commentImageSection" ></div>
-        <img id="imageCheck" width="100%">
         <input type="file" accept="image/*" id="imageInput" class="divbutton" onchange="handleImage()" capture="environment">
+        <button type="button" class="divbutton" onclick="showCommentList()">Cancel</button>
+      </div>
+      <div id="commentImage2Div">
+        <div id="commentImage2Section" ></div>
+        <img id="imageCheck" width="100%">
+        <label for="annotation">Image comments (optional)</label>
+        <textarea id="annotation" cols="80%" rows="4"></textarea>
+        <button type="button" class="divbutton" onclick="saveImage()">Save</button>
         <button type="button" class="divbutton" onclick="showCommentList()">Cancel</button>
       </div>
     </section>
