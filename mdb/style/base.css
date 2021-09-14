@@ -172,7 +172,7 @@ footer {
   }
 }
 textarea {
-  cols: 80%;
+  width: 90vw;
   rows: 4 ;
 }
   

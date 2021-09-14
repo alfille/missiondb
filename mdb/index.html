@@ -46,7 +46,8 @@
         <button type="button" class="divbutton" onclick="deleteComment()" id="deletebutton">Delete Comment</button>
       </div>
       <div id="commentImageDiv">
-        <input type="file" accept="image/*" id="imageInput" class="divbutton" onchange="handleImage()" capture="environment">
+        <div style="display: none;"><input type="file" accept="image/*" id="imageInput" onchange="handleImage()" capture="environment"></div>
+        <button type="button" class="divbutton" onclick="getImage()">Camera or Gallery</button>
         <button type="button" class="divbutton" onclick="showCommentList()">Cancel</button>
       </div>
       <div id="commentImage2Div">

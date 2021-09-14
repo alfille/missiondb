@@ -765,6 +765,12 @@ function CommentImage() {
     }
     console.log("commentimage");
 }
+
+function getImage() {
+    let inp = document.getElementById("imageInput") ;
+    inp.click() ;
+}
+    
    
 //let urlObject;
 function handleImage() {
