@@ -175,4 +175,7 @@ textarea {
   width: 90vw;
   rows: 4 ;
 }
+#imageInput {
+  display:none;
+}
   

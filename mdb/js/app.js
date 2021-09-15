@@ -134,7 +134,7 @@ function displayStateChange() {
             objectCommentImage= null ;
             
             db.allDocs({include_docs: true, descending: true}).then( function(docs) {
-				console.log
+				console.log(docs) ;
                 objectPatientList.fill(docs.rows) ;
                 if ( patientId ) {
                     selectPatient( patientId ) ;
@@ -359,28 +359,32 @@ class dataTable extends sortTable {
         let tbody = this.tname.querySelector('tbody') ;
         tbody.innerHTML = "" ;
         let collist = this.collist ;
-
-        doclist.forEach( function(doc,n) {
-            let row = tbody.insertRow(n) ;
-            let record = doc.doc ;
-            if ( n%2 == 1 ) {
-                row.classList.add('odd') ;
-            }
-            row.addEventListener( 'click', (e) => {
-                selectPatient( record._id ) ;
-            }) ;
-            row.addEventListener( 'dblclick', (e) => {
-                selectPatient( record._id ) ;
-                showPatientOpen() ;
-            }) ;
-            collist.forEach( function(colname,i) {
-                let c = row.insertCell(i) ;
-                if ( colname in record ) {
-                    c.innerHTML = record[colname] ;
-                } else {
-                    c.innerHTML = "" ;
+        let n = 0
+        doclist.forEach( function(doc) {
+            console.log(doc);
+            if (doc.id.split(";").length < 5 ) {
+                let row = tbody.insertRow(n) ;
+                let record = doc.doc ;
+                n += 1 ;
+                if ( n%2 == 1 ) {
+                    row.classList.add('odd') ;
                 }
-            }) ;
+                row.addEventListener( 'click', (e) => {
+                    selectPatient( record._id ) ;
+                }) ;
+                row.addEventListener( 'dblclick', (e) => {
+                    selectPatient( record._id ) ;
+                    showPatientOpen() ;
+                }) ;
+                collist.forEach( function(colname,i) {
+                    let c = row.insertCell(i) ;
+                    if ( colname in record ) {
+                        c.innerHTML = record[colname] ;
+                    } else {
+                        c.innerHTML = "" ;
+                    }
+                }) ;
+            }
         });
     }
   
@@ -637,14 +641,15 @@ class CommentList extends CommentCommon {
         super( parent, "CommentList" ) ;
 
         // get comments
-        let startkey = [ patientId, "Comment" ].join(";") ;
-        console.log(startkey);
-        console.log(startkey+';\fff0');
+        let skey = [ patientId, "Comment" ].join(";") ;
+        console.log(skey);
+        console.log(skey+';\fff0');
         db.allDocs({
             include_docs: true,
             attachments: true,
-            startkey: startkey,
-            endkey: startkey+';\fff0',
+            binary: true,
+            startkey: skey,
+            endkey: skey+';\fff0'
         }).then(( function(docs) {
             console.log(docs);
             docs.rows.forEach( function(comment) {
