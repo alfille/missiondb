@@ -643,40 +643,42 @@ class CommentList extends CommentCommon {
         // get comments
         let skey = [ patientId, "Comment" ].join(";") ;
         console.log(skey);
-        console.log(skey+';\fff0');
+        console.log(skey+'\\fff0');
         db.allDocs({
             include_docs: true,
             attachments: true,
             binary: true,
             startkey: skey,
-            endkey: skey+';\fff0'
+            endkey: skey+'\\fff0'
         }).then(( function(docs) {
             console.log(docs);
+            console.log(this.ul);
             docs.rows.forEach( function(comment) {
                 console.log(comment) ;
             }) ;
-            docs.rows.forEach( function(comment, i) {
+            docs.rows.forEach(( function(comment, i) {
+                console.log(comment);
                 let li = document.createElement("li") ;
-                li.appendChild(document.createTextNode(comment._id.split(';').pop()+"  "+(comment.author||"anonymous"))) ;
-                ul.appendChild(li) ;
+                li.appendChild(document.createTextNode(comment.id.split(';').pop()+"  "+(comment.author||"anonymous"))) ;
+                this.ul.appendChild(li) ;
 
                 li = document.createElement("li") ;
                 li.classList.add("odd") ;
-                li.setAttribute("data-id", comment._id ) ;
-                if ( commentId == comment._id ) {
+                li.setAttribute("data-id", comment.id ) ;
+                if ( commentId == comment.id ) {
                     li.classList.add("choice") ;
                 }
                     
                 li.addEventListener( 'click', (e) => {
-                    selectComment( comment._id ) ;
+                    selectComment( comment.id ) ;
                 }) ;
                 li.addEventListener( 'dblclick', (e) => {
-                    selectComment( comment._id ) ;
+                    selectComment( comment.id ) ;
                     showCommentEdit() ;
                 }) ;
                 console.log(comment);
-                ul.appendChild(li) ;
-            }) ;
+                this.ul.appendChild(li) ;
+            }).bind(this)) ;
             this.li = this.ul.getElementsByTagName('li')
                 
         }).bind(this)
