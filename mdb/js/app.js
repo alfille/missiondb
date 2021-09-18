@@ -523,12 +523,11 @@ function savePatient() {
   
  function deletePatient() {
     let indexdoc ;
-    if ( patientId ) {
+    if ( patientId ) {        
         db.get(patientId).then( function(doc) {
             indexdoc = doc ;
-            return plusComments(true) ;
+            return plusComments(false) ;
         }).then( function(docs) {
-            console.log(docs) ;
             let c = "Delete patient \n   " + indexdoc.FirstName + " " + indexdoc.LastName + "\n    " ;
             if (docs.rows.length == 0 ) {
                 c += "(no comment records on this patient) \n   " ;
@@ -542,14 +541,9 @@ function savePatient() {
                 throw "No delete" ;
             }           
         }).then( function(docs) {
-            console.log(docs);
             return Promise.all(docs.rows.map( function (doc) {
-                console.log(doc.doc);
-                return db.remove(doc.doc) ;
+                return db.remove(doc.id,doc.value.rev) ;
             })) ;
-        }).then( function(ret) {
-            console.log(ret) ;
-            console.log(indexdoc) ;
         }).then( function() {
             return db.remove(indexdoc) ;
         }).then( function() {
@@ -575,7 +569,7 @@ function newImage() {
 function deleteComment() {
     if ( commentId ) {
         db.get( commentId ).then( function(doc) {
-            if ( confirm("Delete comment on pstient" + commentId.split(';')[2] + " " + commentId.split(';')[1] + " " +  + commentId.split(';')[4] + ".\n -- Are you sure?") ) {
+            if ( confirm("Delete comment on patient" + commentId.split(';')[2] + " " + commentId.split(';')[1] + " " +  + commentId.split(';')[4] + ".\n -- Are you sure?") ) {
                 return doc ;
             } else {
                 throw "No delete" ;
@@ -626,7 +620,14 @@ function unselectComment() {
 
 
 function commentTitle( doc ) {
-    return doc.id.split(';').pop()+"  "+(doc.author||"anonymous") ;
+    if ( doc ) {
+        let d = doc ;
+        if ( "doc" in doc ) {
+            d = doc.doc ;
+        }
+        return d._id.split(';').pop()+"  "+(d.author||"anonymous") ;
+    }
+    return "New comment" ;
 }
 
 function plusComments(attachments) {
@@ -731,36 +732,37 @@ function makeCommentId() {
 
 function updateComment() {
     if ( commentId ) {
-        db.get( commentId ).then ( function(doc) {
-            CommentEdit(doc) ;
+        db.get( commentId ).then( function(doc) {
+            commentEdit(doc) ;
         }).catch( function(err) {
             console.log(err);
-            CommentEdit(null) ;
+            commentEdit(null) ;
         }) ;
     } else {
-        CommentEdit(null) ;
+        commentEdit(null) ;
     }
 }
 
-function CommentEdit(doc) {
-    let labtxt ;
+function commentEdit(doc) {
+    console.log(document.getElementById("commentEditLabel")) ;
+    document.getElementById("commentEditLabel").innerHTML = commentTitle(doc)  ;
     if (doc) {
         console.log(doc) ;
-        if ( "_attachments" in doc.doc ) {
-            document.getElementById("imageEdit").src = URL.createObjectURL(doc.doc._attachments.image) ;
+        console.log("old comment") ;
+        if ( "_attachments" in doc ) {
+            document.getElementById("commentrEditImage").src = URL.createObjectURL(doc._attachments.image) ;
         }
-        document.getElementById("commentEditSection").innerText = doc.text ;
-        labtext = document.createTextNode( commentTitle() ) ;
+        document.getElementById("commentEditField").innerText = doc.text ;
     } else {
-        labtext = document.createTextNode("New comment") ;
+        console.log("new comment") ;
+        document.getElementById("commentEditField").innerText = "" ;
     }
-    document.getElementById("commentEditLabel").appendChild(labtext) ;    
 }
 
 function saveComment() {
     if ( commentId ) {
         db.get(commentId).then( function(doc) {
-            doc.text = document.getElementById("commentEditSection").innerText ;
+            doc.text = document.getElementById("commentEditField").innerText ;
             db.put( doc ) ;
         }).catch( function(err) {
             consult.log(err) ;
@@ -769,7 +771,7 @@ function saveComment() {
         db.put({
             _id: makeCommentId(),
             author: userName,
-            text: document.getElementById("commentEditSection").innerText,
+            text: document.getElementById("commentEditField").innerText,
         }).catch( function(err) {
             console.log(err);
         });
