@@ -82,7 +82,7 @@ function selectPatient( pid ) {
         // highlight the list row
         let rows = document.getElementById("PatientTable").rows ;
         for ( let i = 0 ; i < rows.length ; ++i ) {
-            if ( rows[i].cells[0].innerHTML == pid ) {
+            if ( rows[i].cells[0].innerText == pid ) {
                 rows[i].classList.add('choice') ;
             } else {
                 rows[i].classList.remove('choice') ;
@@ -134,7 +134,7 @@ function displayStateChange() {
             objectCommentImage= null ;
             
             db.allDocs({include_docs: true, descending: true}).then( function(docs) {
-				console.log(docs) ;
+				//console.log(docs) ;
                 objectPatientList.fill(docs.rows) ;
                 if ( patientId ) {
                     selectPatient( patientId ) ;
@@ -183,8 +183,8 @@ function displayStateChange() {
             objectCommentOpen = null ;
             objectCommentImage= null ;
             
-            if ( patientId && commentId ) {
-                CommentEdit() ;
+            if ( patientId ) {
+                updateComment() ;
             } else {
                 showPatientList() ;
             }
@@ -283,9 +283,9 @@ class sortTable {
 
         let type = "number" ;
         rowsArray.some( function(r) {
-            let c = r.cells[colNum].innerHTML ;
+            let c = r.cells[colNum].innerText ;
             if ( c == "" ) {
-            } else if ( isNaN( Number(r.cells[colNum].innerHTML) ) ) {
+            } else if ( isNaN( Number(r.cells[colNum].innerText) ) ) {
                 type = "string" ;
                 return true ;
             } else {
@@ -300,12 +300,12 @@ class sortTable {
         switch (type) {
             case 'number':
                 compare = function(rowA, rowB) {
-                    return (rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML) * dir;
+                    return (rowA.cells[colNum].innerText - rowB.cells[colNum].innerText) * dir;
                 };
                 break;
             case 'string':
                 compare = function(rowA, rowB) {
-                    return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? dir : -dir;
+                    return rowA.cells[colNum].innerText > rowB.cells[colNum].innerText ? dir : -dir;
                 };
                 break;
         }
@@ -361,7 +361,7 @@ class dataTable extends sortTable {
         let collist = this.collist ;
         let n = 0
         doclist.forEach( function(doc) {
-            console.log(doc);
+            //console.log(doc);
             if (doc.id.split(";").length < 5 ) {
                 let row = tbody.insertRow(n) ;
                 let record = doc.doc ;
@@ -379,7 +379,7 @@ class dataTable extends sortTable {
                 collist.forEach( function(colname,i) {
                     let c = row.insertCell(i) ;
                     if ( colname in record ) {
-                        c.innerHTML = record[colname] ;
+                        c.innerText = record[colname] ;
                     } else {
                         c.innerHTML = "" ;
                     }
@@ -522,15 +522,36 @@ function savePatient() {
 }
   
  function deletePatient() {
+    let indexdoc ;
     if ( patientId ) {
-        db.get( patientId ).then( function(doc) {
-            if ( confirm("Delete patient " + doc.FirstName + " " + doc.LastName + ".\n -- Are you sure?") ) {
-                return doc ;
+        db.get(patientId).then( function(doc) {
+            indexdoc = doc ;
+            return plusComments(true) ;
+        }).then( function(docs) {
+            console.log(docs) ;
+            let c = "Delete patient \n   " + indexdoc.FirstName + " " + indexdoc.LastName + "\n    " ;
+            if (docs.rows.length == 0 ) {
+                c += "(no comment records on this patient) \n   " ;
+            } else {
+                c += "also delete "+docs.rows.length+" comment records\n   " ;
+            }
+            c += "Are you sure?" ;
+            if ( confirm(c) ) {
+                return docs ;
             } else {
                 throw "No delete" ;
             }           
-        }).then( function(doc) { 
-            return db.remove(doc) ;
+        }).then( function(docs) {
+            console.log(docs);
+            return Promise.all(docs.rows.map( function (doc) {
+                console.log(doc.doc);
+                return db.remove(doc.doc) ;
+            })) ;
+        }).then( function(ret) {
+            console.log(ret) ;
+            console.log(indexdoc) ;
+        }).then( function() {
+            return db.remove(indexdoc) ;
         }).then( function() {
             unselectPatient() ;
             showPatientList() ;
@@ -551,14 +572,10 @@ function newImage() {
     showCommentImage() ;  
 }
 
-function saveComment() {
-    objectCommentEdit.add() ;
-}
-  
 function deleteComment() {
     if ( commentId ) {
         db.get( commentId ).then( function(doc) {
-            if ( confirm("Delete comment on psatient" + commentId.split(';')[2] + " " + commentId.split(';')[1] + " " +  + commentId.split(';')[4] + ".\n -- Are you sure?") ) {
+            if ( confirm("Delete comment on pstient" + commentId.split(';')[2] + " " + commentId.split(';')[1] + " " +  + commentId.split(';')[4] + ".\n -- Are you sure?") ) {
                 return doc ;
             } else {
                 throw "No delete" ;
@@ -608,18 +625,37 @@ function unselectComment() {
 }
 
 
-class CommentCommon {
-    constructor( parent, pageid ) {
+function commentTitle( doc ) {
+    return doc.id.split(';').pop()+"  "+(doc.author||"anonymous") ;
+}
+
+function plusComments(attachments) {
+    let skey = [ patientId, "Comment" ].join(";") ;
+    doc = {
+        startkey: skey,
+        endkey: skey+'\\fff0'
+    }
+    if (attachments) {
+        doc.include_docs = true ;
+        doc.binary = true ;
+        doc.attachments = true ;
+    }
+    return db.allDocs(doc) ;
+}
+
+
+class CommentList {
+    constructor( parent ) {
         if ( parent == null ) {
             parent = document.body ;
         }
         let uls = parent.getElementsByTagName('ul') ;
-        if (uls.length > 0 ) {
+        if (uls.length > 0 ) { // get rid of old
             parent.removeChild(uls[0]) ;
         }
 
         let ul = document.createElement('ul') ;
-        ul.setAttribute( "id", pageid ) ;
+        ul.setAttribute( "id", "CommentList" ) ;
         let li = document.createElement("li") ;
         li.appendChild(document.createTextNode("Notes and Comments")) ;
         ul.appendChild(li) ;
@@ -633,33 +669,18 @@ class CommentCommon {
 
         this.ul = ul ;
         parent.appendChild(ul) ;
-    }
-}
-
-class CommentList extends CommentCommon {
-    constructor( parent ) {
-        super( parent, "CommentList" ) ;
 
         // get comments
         let skey = [ patientId, "Comment" ].join(";") ;
         console.log(skey);
         console.log(skey+'\\fff0');
-        db.allDocs({
-            include_docs: true,
-            attachments: true,
-            binary: true,
-            startkey: skey,
-            endkey: skey+'\\fff0'
-        }).then(( function(docs) {
+        
+        plusComments(true).then(( function(docs) {
             console.log(docs);
-            console.log(this.ul);
-            docs.rows.forEach( function(comment) {
-                console.log(comment) ;
-            }) ;
             docs.rows.forEach(( function(comment, i) {
                 console.log(comment);
                 let li = document.createElement("li") ;
-                li.appendChild(document.createTextNode(comment.id.split(';').pop()+"  "+(comment.author||"anonymous"))) ;
+                li.appendChild(document.createTextNode(commentTitle(comment))) ;
                 this.ul.appendChild(li) ;
 
                 li = document.createElement("li") ;
@@ -668,7 +689,23 @@ class CommentList extends CommentCommon {
                 if ( commentId == comment.id ) {
                     li.classList.add("choice") ;
                 }
-                    
+                if ( "doc" in comment ) {
+                    console.log(comment.doc);
+                    if ("_attachments" in comment.doc ){
+                        let img = document.createElement("img") ;
+                        img.className = "fullimage" ;
+                        img.src = URL.createObjectURL(comment.doc._attachments.image.data) ;
+                        li.appendChild(img);
+                    }
+                    if ("text" in comment.doc ){
+                        let div = document.createElement("div") ;
+                        console.log(div) ;
+                        console.log(comment.doc.text);
+                        div.innerText = comment.doc.text ;
+                        li.appendChild(div);
+                    }
+                }    
+                
                 li.addEventListener( 'click', (e) => {
                     selectComment( comment.id ) ;
                 }) ;
@@ -676,7 +713,6 @@ class CommentList extends CommentCommon {
                     selectComment( comment.id ) ;
                     showCommentEdit() ;
                 }) ;
-                console.log(comment);
                 this.ul.appendChild(li) ;
             }).bind(this)) ;
             this.li = this.ul.getElementsByTagName('li')
@@ -693,76 +729,54 @@ function makeCommentId() {
     return [ patientId, "Comment" , d ].join(";") ;
 }
 
-class EditComment extends CommentCommon{
-    constructor( parent ) {
-        super( parent, "CommentEdit" ) ;
-
-        let li = document.createElement("li") ;
-        let li2 = document.createElement("li") ;
-        
-        this.doc = {} ;
-
-        if ( commentId ) {
-            db.get( commentId ).then (( function(doc) {
-                li.appendChild(document.createTextNode("New comment")) ;
-                this.ul.appendChild(li) ;
-                li2.appendChild( this.commentfield("") );
-                this.appendChild(li2) ;
-            }).bind(this)
-            );
-                
-        } else {
-            li.appendChild(document.createTextNode("New comment")) ;
-            this.ul.appendChild(li) ;
-            
-            li2.appendChild( this.commentfield("") ) ;
-            this.appendChild(li2) ;
-        }
-            
-        li.appendChild(document.createTextNode("Notes and Comments")) ;
-        this.ul.appendChild(li) ;
-        
-        // get comment
-        db.allDocs({
-            include_docs: true,
-            attachments: true,
-            startkey: startkey,
-            endkey: startkey+';\fff0'
-        }).then(( function(docs) {
-            console.log(docs);
-            doc.rows.forEach( function(v, i) {
-                console.log(v) ;
-            }) ;
-            doc.rows.forEach( function(v, i) {
-                let li = document.createElement("li") ;
-                li.appendChild(document.createTextNode(v._id.split(';').pop()+"  "+(v.author||"anonymous"))) ;
-                ul.appendChild(li) ;
-
-                li = document.createElement("li") ;
-                li.classList.add("odd") ;
-                li.setAttribute("data-id", v._id ) ;
-                if ( commentId == v._id ) {
-                    li.classList.add("choice") ;
-                }
-                    
-                li.addEventListener( 'click', (e) => {
-                    selectComment( v._id ) ;
-                }) ;
-                li.addEventListener( 'dblclick', (e) => {
-                    selectComment( v._id ) ;
-                    showCommentEdit() ;
-                }) ;
-                ul.appendChild(li) ;
-            }) ;
-            this.li = this.ul.getElementsByTagName('li')
-                
-        }).bind(this)
-        ).catch( function(err) {
-            console.log(err) ;
-        }); 
+function updateComment() {
+    if ( commentId ) {
+        db.get( commentId ).then ( function(doc) {
+            CommentEdit(doc) ;
+        }).catch( function(err) {
+            console.log(err);
+            CommentEdit(null) ;
+        }) ;
+    } else {
+        CommentEdit(null) ;
     }
 }
 
+function CommentEdit(doc) {
+    let labtxt ;
+    if (doc) {
+        console.log(doc) ;
+        if ( "_attachments" in doc.doc ) {
+            document.getElementById("imageEdit").src = URL.createObjectURL(doc.doc._attachments.image) ;
+        }
+        document.getElementById("commentEditSection").innerText = doc.text ;
+        labtext = document.createTextNode( commentTitle() ) ;
+    } else {
+        labtext = document.createTextNode("New comment") ;
+    }
+    document.getElementById("commentEditLabel").appendChild(labtext) ;    
+}
+
+function saveComment() {
+    if ( commentId ) {
+        db.get(commentId).then( function(doc) {
+            doc.text = document.getElementById("commentEditSection").innerText ;
+            db.put( doc ) ;
+        }).catch( function(err) {
+            consult.log(err) ;
+        });
+    } else {
+        db.put({
+            _id: makeCommentId(),
+            author: userName,
+            text: document.getElementById("commentEditSection").innerText,
+        }).catch( function(err) {
+            console.log(err);
+        });
+    }
+    showCommentList() ;
+}
+  
 function CommentImage() {
     let inp = document.getElementById("imageInput") ;
     if ( isAndroid() ) {
@@ -805,20 +819,18 @@ function handleImage() {
 function saveImage() {
     const files = document.getElementById('imageInput')
     const image = files.files[0];
-    const text = document.getElementById("annotation") ;
+    const text = document.getElementById("annotation").innerText ;
 
     db.put( {
         _id: makeCommentId(),
         text: text.value,
+        author: userName,
         _attachments: {
             image: {
                 content_type: image.type,
                 data: image,
             }
         }
-    }).then( function(doc) {
-        console.log(doc) ;
-        return db.get( doc.id ) ;
     }).then( function(doc) {
         console.log(doc) ;
         showCommentList() ;
@@ -831,11 +843,12 @@ function saveImage() {
 
 function setUserButton() {
 	if ( userName ) {
-		document.getElementById("userbutton").innerHTML = "User: "+userName ;
+		document.getElementById("userbutton").innerText = "User: "+userName ;
 	} else {    
-		document.getElementById("userbutton").innerHTML = "User?" ;
+		document.getElementById("userbutton").innerText = "User?" ;
 	}
 }
+
 function setUser() {
 	let un = prompt( "User name:",userName ) ;
 	if ( un ) {
@@ -844,17 +857,19 @@ function setUser() {
 		setUserButton() ;
 	}
 }
+
 userName = getCookie( "userName" ) ;
 setUserButton() ;
 		  
 
 function setRemoteButton() {
 	if ( remoteCouch ) {
-		document.getElementById("remotebutton").innerHTML = "Remote CouchDB: "+remoteCouch ;
+		document.getElementById("remotebutton").innerText = "Remote CouchDB: "+remoteCouch ;
 	} else {    
-		document.getElementById("remotebutton").innerHTML = "Remote CouchDB: http://host:5984" ;
+		document.getElementById("remotebutton").innerText = "Remote CouchDB: http://host:5984" ;
 	}
 }
+
 function setRemote() {
 	let un = prompt( "Remote CouchDB address:", remoteCouch ) ;
 	let rem = remoteCouch ;
@@ -896,23 +911,23 @@ setRemoteButton() ;
 	// Initialise a sync with the remote server
 	function sync() {
 		let synctext = document.getElementById("syncstatus") ;
-		synctext.innerHTML = "Sync status: syncing..." ;
+		synctext.innerText = "Sync status: syncing..." ;
 		console.log(remoteCouch+'/mdb') ;
 		db.sync( remoteCouch+'/mdb', {
 			live: true,
 			retry: true
 		}).on('change', function(info) {
-			synctext.innerHTML = "Sync status: changed";
+			synctext.innerText = "Sync status: changed";
 		}).on('paused', function(err) {
-			synctext.innerHTML = "Sync status: paused";
+			synctext.innerText = "Sync status: paused";
 		}).on('active', function() {
-			synctext.innerHTML = "Sync status: active";
+			synctext.innerText = "Sync status: active";
 		}).on('denied', function(err) {
-			synctext.innerHTML = "Sync status: denied "+err;
+			synctext.innerText = "Sync status: denied "+err;
 		}).on('complete', function(info) {
-			synctext.innerHTML = "Sync status: complete";
+			synctext.innerText = "Sync status: complete";
 		}).on('error', function(err) {
-			synctext.innerHTML = "Sync status: error "+err ;
+			synctext.innerText = "Sync status: error "+err ;
 		});
 	}
 

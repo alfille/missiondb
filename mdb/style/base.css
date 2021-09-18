@@ -165,17 +165,17 @@ footer {
   max-width: 100%;
   height: auto ;
 }
-@media only and (orientation: portrait) {
+@media only and (orientation: landscape) {
   .fullimage {
     max-height: 80%;
 	width: auto ;
   }
 }
-textarea {
-  width: 90vw;
-  rows: 4 ;
-}
 #imageInput {
   display:none;
+}
+.editable {
+  border: 1px solid darkgray;
+  width: 100%;
 }
   
