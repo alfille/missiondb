@@ -124,15 +124,14 @@ function displayStateChange() {
     }
 
     setCookie("displayState",displayState) ;
+    objectPatientOpen = null ;
+    objectPatientEdit = null ;
+    objectCommentList = null ;
+    objectCommentOpen = null ;
+    objectCommentImage= null ;
 
     switch( displayState ) {
-        case "PatientList":
-            objectPatientOpen = null ;
-            objectPatientEdit = null ;
-            objectCommentList = null ;
-            objectCommentOpen = null ;
-            objectCommentImage= null ;
-            
+        case "PatientList":            
             db.allDocs({include_docs: true, descending: true}).then( function(docs) {
 				//console.log(docs) ;
                 objectPatientList.fill(docs.rows) ;
@@ -145,62 +144,43 @@ function displayStateChange() {
                     console.log(err);
                 });
             break ;
-        case "PatientOpen":
-            objectPatientEdit = null ;
-            objectCommentList = null ;
-            objectCommentOpen = null ;
-            objectCommentImage= null ;
             
+        case "PatientOpen":
             if ( patientId ) {
                 objectPatientOpen = new OpenPList( "PatientOpen", patientOpenSection ) ;
             } else {
                 showPatientList() ;
             }
             break ;
-        case "PatientEdit":
-            objectPatientOpen = null ;
-            objectCommentList = null ;
-            objectCommentOpen = null ;
-            objectCommentImage= null ;
             
+        case "PatientEdit":            
             objectPatientEdit = new EditPList( "PatientEdit", patientEditSection ) ;
             break ;
-        case "CommentList":
-            objectPatientOpen = null ;
-            objectPatientEdit = null ;
-            objectCommentEdit = null ;
-            objectCommentImage= null ;
             
+        case "CommentList":            
             if ( patientId ) {
                 objectCommentList = new CommentList( commentListSection ) ;
             } else {
                 showPatientList() ;
             }
             break ;
-        case "CommentEdit":
-            objectPatientOpen = null ;
-            objectCommentList = null ;
-            objectCommentOpen = null ;
-            objectCommentImage= null ;
             
+        case "CommentEdit":
             if ( patientId ) {
                 updateComment() ;
             } else {
                 showPatientList() ;
             }
             break ;
+            
         case "CommentImage":
-            objectPatientOpen = null ;
-            objectCommentList = null ;
-            objectCommentOpen = null ;
-            objectCommentEdit = null ;
-           
             if ( patientId ) {
                 CommentImage() ;
             } else {
                 showPatientList() ;
             }
             break ;
+            
 		default:
 			showPatientList() ;
 			break ;
@@ -900,11 +880,11 @@ setRemoteButton() ;
     }).on('change', function(change) {
         switch (displayState) {
             case "PatientList":
-                showPatientList();
-                break ;
             case "PatientOpen":
-            case "PatientEdit":
             case "CommentList":
+                displayStateChange();
+                break ;
+            case "PatientEdit":
             case "CommentEdit":
                 break ;
         }
@@ -938,7 +918,7 @@ setRemoteButton() ;
     }
     displayState = getCookie( "displayState" ) ;
     displayStateChange() ;
-    patientId = getCookie( "patientd" ) ;
+    patientId = getCookie( "patientId" ) ;
     if ( patientId ) {
         selectPatient( patientId ) ;
     }
