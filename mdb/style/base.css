@@ -17,33 +17,23 @@ th {
 th:hover {
   background:  yellow;
 }
+tr.head {
+  background: #CCFFFF ;
+}
 tr:hover {
   background: lightyellow ;
 }
-tr.choice li,choice {
-  background: lightyellow !important;
-}
-td:first-child {
-  display:none;
-}
-th:first-child {
-  display:none;
-}
-
 tr, li {
   background: #CCCCFF ;
 }
-
 tr.odd, li.odd {
   background: #E6F2FF ;
 }
-
+tr.choice, li.choice {
+  background: gold !important;
+}
 tr.odd:hover, li.odd:hover {
   background: lightyellow ;
-}
-
-tr.head {
-  background: #CCFFFF ;
 }
 
 ul {
@@ -130,7 +120,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-#patientListDiv, #patientOpenDiv, #patientEditDiv, #commentListDiv, #commentEditDiv {
+#patientListDiv, #patientOpenDiv, #patientEditDiv, #commentListDiv, #commentEditDiv #editToolbarDiv {
   display: none ;
 }
 
@@ -183,16 +173,16 @@ footer {
     padding: 20px;
     min-height:200px;
 }
-.sample-toolbar {
+#editToolbar {
     border:solid 1px #ddd;
     background:#f4f4f4;
     padding: 5px;
     border-radius:3px;
 }
-.sample-toolbar > span {
+#editToolbar > span {
     cursor:pointer;
 }
-.sample-toolbar span:hover {
+#editToolbar span:hover {
     color: red;
 }
 

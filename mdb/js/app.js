@@ -15,6 +15,11 @@ var remoteCouch = 'http://192.168.1.5:5984/mdb';
 
 var DbaseVersion = "v0" ;
 
+var editTbar = document.getElementById("editToolbarDiv").removeChild(document.getElementById("editToolbar")) ;
+function tbarFunc(command) {
+    document.execCommand(command, false, null);
+}
+
 var PatientInfoList = [
     ["LastName","text"],
     ["FirstName","text"],
@@ -82,7 +87,7 @@ function selectPatient( pid ) {
         // highlight the list row
         let rows = document.getElementById("PatientTable").rows ;
         for ( let i = 0 ; i < rows.length ; ++i ) {
-            if ( rows[i].cells[0].innerText == pid ) {
+            if ( rows[i].getAttribute("data-id") == pid ) {
                 rows[i].classList.add('choice') ;
             } else {
                 rows[i].classList.remove('choice') ;
@@ -349,8 +354,13 @@ class dataTable extends sortTable {
                 if ( n%2 == 1 ) {
                     row.classList.add('odd') ;
                 }
+                row.setAttribute("data-id",record._id) ;
+                if (record._id == patientId) {
+                    row.classList.add("choice") ;
+                }
                 row.addEventListener( 'click', (e) => {
                     selectPatient( record._id ) ;
+                    console.log("select by click");
                 }) ;
                 row.addEventListener( 'dblclick', (e) => {
                     selectPatient( record._id ) ;
@@ -361,7 +371,7 @@ class dataTable extends sortTable {
                     if ( colname in record ) {
                         c.innerText = record[colname] ;
                     } else {
-                        c.innerHTML = "" ;
+                        c.innerText = "" ;
                     }
                 }) ;
             }
@@ -370,7 +380,7 @@ class dataTable extends sortTable {
   
 }
 
-var objectPatientList = new dataTable( "PatientTable", patientListSection, ["_id", "LastName", "FirstName", "DOB","Dx","Procedure" ] ) ;
+var objectPatientList = new dataTable( "PatientTable", patientListSection, ["LastName", "FirstName", "DOB","Dx","Procedure" ] ) ;
 
 class FieldList {
     constructor( idname, parent, fieldlist ) {
