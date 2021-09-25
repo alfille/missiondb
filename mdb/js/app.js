@@ -15,10 +15,53 @@ var remoteCouch = 'http://192.168.1.5:5984/mdb';
 
 var DbaseVersion = "v0" ;
 
-var editTbar = document.getElementById("editToolbarDiv").removeChild(document.getElementById("editToolbar")) ;
 function tbarFunc(command) {
     document.execCommand(command, false, null);
 }
+
+class Tbar {
+    constructor() {
+        this.textdiv = null ;
+        this.text = null ;
+        this.toolbar = document.getElementById("editToolbar") ;
+        this.toolbar.parentNode.removeChild(this.toolbar) ;
+    }
+
+    startedit( existingdiv ) {
+        if ( this.textdiv === null ) {
+            this.text = existingdiv.innerText || "" ;
+            existingdiv.innerHTML = "" ;
+            existingdiv.appendChild(this.toolbar) ;
+            this.textdiv = document.createElement("div") ;
+            this.textdiv.innerText = this.text ;
+            this.textdiv.contentEditable = true ;
+            existingdiv.appendChild(this.textdiv) ;
+            this.toolbar = null ;
+            return true ;
+        }
+        return false ;
+    }
+
+    saveedit() {
+        if ( this.textdiv ) {
+            this.text = this.textdiv.innerText ;
+            this.canceledit() ;
+        }
+    }
+
+    canceledit() {
+        if ( this.textdiv ) {
+            p = this.textdiv.parentNode ;
+            this.toolbar = p.getElementById("editToolbar") ;
+            p.removeChild( this.toolbar ) ;
+            p.removeChild( this.textdiv ) ;
+            this.textdiv = null ;
+            p.innerText = this.text ;
+        }
+    }
+}
+
+var tBar = new Tbar() ;        
 
 var PatientInfoList = [
     ["LastName","text"],
@@ -359,7 +402,6 @@ class dataTable extends sortTable {
                     row.classList.add("choice") ;
                 }
                 row.addEventListener( 'click', (e) => {
-                    selectPatient( record._id ) ;
                     console.log("select by click");
                 }) ;
                 row.addEventListener( 'dblclick', (e) => {
@@ -701,8 +743,9 @@ class CommentList {
                     selectComment( comment.id ) ;
                 }) ;
                 li.addEventListener( 'dblclick', (e) => {
-                    selectComment( comment.id ) ;
-                    showCommentEdit() ;
+                    if ( tBar.startedit(li) ) {
+                        selectComment( comment.id ) ;
+                    }
                 }) ;
                 this.ul.appendChild(li) ;
             }).bind(this)) ;
