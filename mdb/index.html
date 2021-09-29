@@ -25,7 +25,7 @@
         <button type="button" class="divbutton" onclick="showPatientEdit()">Edit Patient Data</button>
         <button type="button" class="divbutton" onclick="showCommentList()">Case Comments</button>
         <button type="button" class="divbutton" onclick="showPatientList()">Return</button>
-        <button type="button" class="divbutton" onclick="deletePatient()" id="deletebutton">Delete Patient</button>
+        <button type="button" class="divbutton" onclick="deletePatient()" id="deletepatient">Delete Patient</button>
       </div>
       <div id="patientEditDiv">
         <div id="patientEditSection" ></div>
@@ -34,20 +34,13 @@
       </div>
       <div id="commentListDiv">
         <div id="commentListSection" ></div>
-        <button type="button" class="divbutton" onclick="newComment()">Add Case Comment</button>
-        <button type="button" class="divbutton" onclick="newImage()">Add Image</button>
-        <button type="button" class="divbutton" onclick="showCommentEdit()" id="editreviewcomment">Update Comment</button>
-        <button type="button" class="divbutton" onclick="showPatientOpen()">Return</button>
       </div>
-      <div id="commentEditDiv">
-        <div id="commentEditSection">
-          <img id="commentEditImage" class="fullimage">
-          <label for="commentEditField" id="commentEditLabel"></label>
-          <div id="commentEditField" class="editable" contenteditable="true"></div>
+     <div id="commentNewDiv">
+        <div id="commentNewSection">
+          <img id="commentNewImage" class="fullimage">
+          <label for="commentNewField" id="commentNewLabel"></label>
+          <div id="commentNewField" class="editable"></div>
         </div>
-        <button type="button" class="divbutton" onclick="saveComment()">Save</button>
-        <button type="button" class="divbutton" onclick="commentPatient()">Cancel</button>
-        <button type="button" class="divbutton" onclick="deleteComment()" id="deletebutton">Delete Comment</button>
       </div>
       <div id="commentImageDiv">
         <input type="file" accept="image/*" id="imageInput" onchange="handleImage()" capture="environment">
@@ -60,12 +53,13 @@
         <img id="imageCheck" class="fullimage">
         
         <label for="annotation">Image comments (optional)</label>
-        <div id="annotation" class="editable" contenteditable="true"></div>
+        <div id="annotation" class="editable"></div>
         <button type="button" class="divbutton" onclick="saveImage()">Save</button>
         <button type="button" class="divbutton" onclick="showCommentList()">Cancel</button>
       </div>
       <div id="editToolbarDiv">
         <div id="editToolbar">
+            <!---
             <button type="button" onclick="tbarFunc('bold')"><span><B>B</B></span></button>
             <button type="button" onclick="tbarFunc('italic')"><span><I>I</I></span></button>
             <button type="button" onclick="tbarFunc('underline')"><span><u>u</u></span></button>
@@ -78,10 +72,17 @@
             <button type="button" onclick="tbarFunc('justifyright')" title="Justify right"><span><B>&#8677;</B></span></button>
             <button type="button" onclick="tbarFunc('justifyfull')" title="Justify both"><span><B>&#8633;</B></span></button>
             &nbsp;
-            <button type="button" onclick="saveEdit()"><span><B>Save</B></span></button>
-            <button type="button" onclick="cancelEdit()"><span><B>Cancel</B></span></button>
-            <button type="button" onclick="deleteEdit()" style="float:right; background:red;"><span><B>Delete</B></span></button>
+            --->
+            <button type="button" onclick="editBar.saveedit()"><span><B>Save</B></span></button>
+            <button type="button" onclick="editBar.canceledit()"><span><B>Cancel</B></span></button>
+            <button type="button" onclick="editBar.deleteedit()" id="tbardel" style="float:right; background:red;"><span><B>Delete</B></span></button>
         </div>
+        <div id="commentbuttons" >
+            <button class="returnfromcomment libutton" type="button" onclick="showPatientOpen()">Return</button>
+            <button class="editthecomment libutton" type="button">Edit</button>
+            <button class="createthecomment libutton" type="button" onclick="showCommentNew()">New Comment</button>
+            <button class="createtheimage libutton" type="button">New Image</button>
+            </div>
     </div>
     </section>
     <footer>

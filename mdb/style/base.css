@@ -25,6 +25,7 @@ tr:hover {
 }
 tr, li {
   background: #CCCCFF ;
+  min-height: 1em;
 }
 tr.odd, li.odd {
   background: #E6F2FF ;
@@ -43,11 +44,11 @@ ul {
 }
 
 .divbutton {
-  margin: 2px;
+  margin: 1px;
   padding: 4px;
   border: 4px;
   background: #3366FF;
-  font-size: 22px;
+  font-size: 16px;
   vertical-align: baseline;
   font-family: inherit;
   color: white;
@@ -64,7 +65,7 @@ ul {
   background: #9eb6ff ;
 }
  
-#deletebutton {
+#deleteedit {
   background: red;
   float: right;
 }
@@ -72,15 +73,7 @@ ul {
 body {
   font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.4em;
-  /*
-  background: #eaeaea url('bg.png');
-  */
   background: #8C9BFB;
-  /*
-  background: -moz-linear-gradient(top, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
-  background: -webkit-linear-gradient(top, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
-  background: linear-gradient(to bottom, #8C9BFB 0%, #91ADCB 31%, #86E9D1 100%);
-  */
   color: #4d4d4d;
   width: 100%;
   margin: 0 auto;
@@ -120,8 +113,18 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-#patientListDiv, #patientOpenDiv, #patientEditDiv, #commentListDiv, #commentEditDiv #editToolbarDiv {
+#patientListDiv, #patientOpenDiv, #patientEditDiv, #commentListDiv, #commentNewDiv, #editToolbarDiv, #commentbuttons {
   display: none ;
+}
+
+#commentListDiv li {
+  font-style: italic;
+  display: flex;
+  width: 100%;
+}
+#commentListDiv li.odd {
+  font-style: normal;
+  display: block;
 }
 
 #patientEditDiv {
@@ -179,10 +182,24 @@ footer {
     padding: 5px;
     border-radius:3px;
 }
-#editToolbar > span {
+#editToolbar span {
     cursor:pointer;
 }
 #editToolbar span:hover {
     color: red;
+}
+.libutton {
+  background: yellow;
+  color: black;
+  border: 1px solid red;
+  margin: 1px 3px 1px 1px ;
+}
+.libutton:disabled {
+  background: #ffffcc;
+  color: grey;
+}
+#textdiv {
+  background: gold;
+  min-height: 1em;
 }
 

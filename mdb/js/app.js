@@ -4,7 +4,7 @@ var commentId ;
 var objectPatientOpen  ;
 var objectPatientEdit  ;
 var objectCommentList ;
-var objectCommentEdit ;
+var objectCommentNew ;
 var objectCommentImage ;
 var userName ;
   
@@ -25,43 +25,99 @@ class Tbar {
         this.text = null ;
         this.toolbar = document.getElementById("editToolbar") ;
         this.toolbar.parentNode.removeChild(this.toolbar) ;
+        this.comment = 1 ;
     }
 
-    startedit( existingdiv ) {
-        if ( this.textdiv === null ) {
-            this.text = existingdiv.innerText || "" ;
-            existingdiv.innerHTML = "" ;
-            existingdiv.appendChild(this.toolbar) ;
+    active() {
+        return this.textdiv ;
+    }
+
+    startedit( existingdiv, savefunc, deletefunc ) {
+        // false if already exists
+        this.comment += 1 ;
+        if ( !this.active() ) {
+            this.savefunc = savefunc ;
+            this.deletefunc = deletefunc ;
+            this.parent = existingdiv ;
+            this.toolbar.querySelector("#tbardel").disabled = (deletefunc===null)
+            this.text = this.parent.innerText || "" ;
+
+            this.parent.innerHTML = "" ;
+            this.parent.appendChild(this.toolbar) ;
+
             this.textdiv = document.createElement("div") ;
             this.textdiv.innerText = this.text ;
             this.textdiv.contentEditable = true ;
-            existingdiv.appendChild(this.textdiv) ;
+            this.textdiv.id = "textdiv" ;
+            this.parent.appendChild(this.textdiv) ;
+
             this.toolbar = null ;
             return true ;
         }
         return false ;
     }
 
-    saveedit() {
-        if ( this.textdiv ) {
-            this.text = this.textdiv.innerText ;
-            this.canceledit() ;
+    startcommentedit( element ) {
+        this.comment = 0 ;
+        if ( this.active() ) {
+            return false ;
+        }
+        if ( element ) {
+            selectComment(element.getAttribute("data-id")) ;
+            let li = document.getElementById("CommentList").getElementsByClassName("libutton");
+            for ( let l of li ) {
+                l.disabled = true ;
+            }
+            return this.startedit( element, saveComment, deleteComment ) ;
+        } else {
+            unselectComment() ;
+            return this.startedit( element, saveComment, null ) ;
         }
     }
 
+    saveedit() {
+        if ( this.active() ) {
+            this.text = this.textdiv.innerText ;
+            this.canceledit() ;
+            this.savefunc( this.text ) ;
+        }
+    }
+
+    undiv( element ) {
+        while ( element.nodeName == "DIV" ) {
+            console.log( element ) ;
+            element = element.firstChild ;
+        }
+        return element ;
+    }
+
     canceledit() {
-        if ( this.textdiv ) {
-            p = this.textdiv.parentNode ;
-            this.toolbar = p.getElementById("editToolbar") ;
-            p.removeChild( this.toolbar ) ;
-            p.removeChild( this.textdiv ) ;
+        if ( this.active() ) {
+            this.toolbar = document.getElementById("editToolbar") ;
+            this.parent.removeChild( this.toolbar ) ;
+            this.parent.removeChild( this.textdiv ) ;
             this.textdiv = null ;
-            p.innerText = this.text ;
+            this.parent.innerText = this.text ;
+        }
+        if ( this.comment < 2 ) {
+            let li = document.getElementById("CommentList").getElementsByClassName("libutton");
+            for ( let l of li ) {
+                l.disabled = false ;
+            }
+        }
+    }
+
+    deleteedit() {
+        let t = document.getElementById("editToolbar") ;
+        if (this.deletefunc()) {
+            this.toolbar = t ;
+            this.textdiv = null
+            this.text = null ;
         }
     }
 }
 
-var tBar = new Tbar() ;        
+var editBar = new Tbar() ;        
 
 var PatientInfoList = [
     ["LastName","text"],
@@ -108,8 +164,8 @@ function showCommentList() {
     displayStateChange() ;
 }
 
-function showCommentEdit() {
-    displayState = "CommentEdit" ;
+function showCommentNew() {
+    displayState = "CommentNew" ;
     displayStateChange() ;
 }
 
@@ -159,7 +215,7 @@ function displayStateChange() {
         [ "PatientEdit", "patientEditDiv" ] ,
         [ "PatientOpen", "patientOpenDiv" ] ,
         [ "CommentList", "commentListDiv" ] ,
-        [ "CommentEdit", "commentEditDiv" ] ,
+        [ "CommentNew", "commentNewDiv" ] ,
         [ "CommentImage","commentImageDiv"] ,
         [ "CommentImage2","commentImage2Div"] ,
     ] ;
@@ -175,13 +231,12 @@ function displayStateChange() {
     objectPatientOpen = null ;
     objectPatientEdit = null ;
     objectCommentList = null ;
-    objectCommentOpen = null ;
     objectCommentImage= null ;
 
     switch( displayState ) {
         case "PatientList":            
             db.allDocs({include_docs: true, descending: true}).then( function(docs) {
-				//console.log(docs) ;
+                //console.log(docs) ;
                 objectPatientList.fill(docs.rows) ;
                 if ( patientId ) {
                     selectPatient( patientId ) ;
@@ -213,15 +268,17 @@ function displayStateChange() {
             }
             break ;
             
-        case "CommentEdit":
+         case "CommentNew":
             if ( patientId ) {
-                updateComment() ;
+                // New comment only
+                unselectComment() ;
+                commentNew() ;
             } else {
                 showPatientList() ;
             }
             break ;
             
-        case "CommentImage":
+       case "CommentImage":
             if ( patientId ) {
                 CommentImage() ;
             } else {
@@ -229,9 +286,9 @@ function displayStateChange() {
             }
             break ;
             
-		default:
-			showPatientList() ;
-			break ;
+        default:
+            showPatientList() ;
+            break ;
     }
 }
 
@@ -259,13 +316,13 @@ function getCookie( cname ) {
 }
 
 function isAndroid() {
-	return navigator.userAgent.toLowerCase().indexOf("android") > -1 ;
+    return navigator.userAgent.toLowerCase().indexOf("android") > -1 ;
 }
 
 class sortTable {
     constructor(tname) {
-		this.dir = 1 ;
-		this.lastth = -1 ;
+        this.dir = 1 ;
+        this.lastth = -1 ;
         this.tname = tname ;
         tname.onclick = this.allClick.bind(this) ;
     }
@@ -587,11 +644,6 @@ function savePatient() {
     }
 }
 
-function newComment() {
-    unselectComment() ;
-    showCommentEdit() ;  
-}
-
 function newImage() {
     console.log("new image");
     unselectComment() ;
@@ -613,8 +665,10 @@ function deleteComment() {
             showCommentList() ;
         }).catch( function(err) {
             console.log(err) ;
+            return false ;
         });
     }
+    return true ;
 }    
     
 function selectComment( cid ) {
@@ -622,18 +676,17 @@ function selectComment( cid ) {
     setCookie( "commentId", cid ) ;
     if ( displayState == "CommentList" ) {
         // highlight the list row
-        let li = document.getElementById("CommentList").li ;
-		if ( li && (li.length > 0) ) {
-			for ( let l of li ) {
-				if ( l.getAttribute("data-id") == commentId ) {
-					l.classList.add('choice') ;
-				} else {
-					l.classList.remove('choice') ;
-				}
-			}
-		}
+        let li = document.getElementById("CommentList").getElementsByTagName("LI");
+        if ( li && (li.length > 0) ) {
+            for ( let l of li ) {
+                if ( l.getAttribute("data-id") == commentId ) {
+                    l.classList.add('choice') ;
+                } else {
+                    l.classList.remove('choice') ;
+                }
+            }
+        }
     }
-    document.getElementById("editreviewcomment").disabled = false ;
 }
 
 function unselectComment() {
@@ -642,12 +695,11 @@ function unselectComment() {
     if ( displayState == "CommentList" ) {
         let li = document.getElementById("CommentList").li ;
         if ( li && (li.length > 0) ) {
-			for ( let l of li ) {
-				l.classList.remove('choice') ;
-			}
-		}
+            for ( let l of li ) {
+                l.classList.remove('choice') ;
+            }
+        }
     }
-    document.getElementById("editreviewcomment").disabled = true ;
 }
 
 
@@ -657,7 +709,7 @@ function commentTitle( doc ) {
         if ( "doc" in doc ) {
             d = doc.doc ;
         }
-        return d._id.split(';').pop()+"  "+(d.author||"anonymous") ;
+        return d._id.split(';').pop()+"  by <b>"+(d.author||"anonymous")+"</b>" ;
     }
     return "New comment" ;
 }
@@ -689,16 +741,10 @@ class CommentList {
 
         let ul = document.createElement('ul') ;
         ul.setAttribute( "id", "CommentList" ) ;
-        let li = document.createElement("li") ;
-        li.appendChild(document.createTextNode("Notes and Comments")) ;
-        ul.appendChild(li) ;
 
-        li = document.createElement("li") ;
-        li.classList.add("odd") ;
-        let id = patientId.split(';');
-        li.appendChild(document.createTextNode("Patient: "+id[1]+", "+id[2]+"    DOB: "+id[3])) ;
+        ul.appendChild( this.lifirst() ) ;
 
-        ul.appendChild(li) ;
+        ul.appendChild( this.lisecond() ) ;
 
         this.ul = ul ;
         parent.appendChild(ul) ;
@@ -712,42 +758,12 @@ class CommentList {
             console.log(docs);
             docs.rows.forEach(( function(comment, i) {
                 console.log(comment);
-                let li = document.createElement("li") ;
-                li.appendChild(document.createTextNode(commentTitle(comment))) ;
-                this.ul.appendChild(li) ;
 
-                li = document.createElement("li") ;
-                li.classList.add("odd") ;
-                li.setAttribute("data-id", comment.id ) ;
-                if ( commentId == comment.id ) {
-                    li.classList.add("choice") ;
-                }
-                if ( "doc" in comment ) {
-                    console.log(comment.doc);
-                    if ("_attachments" in comment.doc ){
-                        let img = document.createElement("img") ;
-                        img.className = "fullimage" ;
-                        img.src = URL.createObjectURL(comment.doc._attachments.image.data) ;
-                        li.appendChild(img);
-                    }
-                    if ("text" in comment.doc ){
-                        let div = document.createElement("div") ;
-                        console.log(div) ;
-                        console.log(comment.doc.text);
-                        div.innerText = comment.doc.text ;
-                        li.appendChild(div);
-                    }
-                }    
-                
-                li.addEventListener( 'click', (e) => {
-                    selectComment( comment.id ) ;
-                }) ;
-                li.addEventListener( 'dblclick', (e) => {
-                    if ( tBar.startedit(li) ) {
-                        selectComment( comment.id ) ;
-                    }
-                }) ;
-                this.ul.appendChild(li) ;
+                let li1 = this.liLabel(comment) ;
+                this.ul.appendChild( li1 ) ;
+                let li2 = this.liComment(comment,li1) ;
+                this.ul.appendChild( li2 ) ;
+
             }).bind(this)) ;
             this.li = this.ul.getElementsByTagName('li')
                 
@@ -756,6 +772,80 @@ class CommentList {
             console.log(err) ;
         }); 
     }
+
+    lifirst() {
+        let li = document.createElement("li") ;
+        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("returnfromcomment")[0].cloneNode(true) ) ;
+        li.appendChild(document.createTextNode("Notes and Comments")) ;
+        return li ;
+    }
+
+    lisecond() {
+        let li = document.createElement("li") ;
+        li.classList.add("odd") ;
+
+        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("createthecomment")[0].cloneNode(true) ) ;
+        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("createtheimage")[0].cloneNode(true) ) ;
+
+        let id = patientId.split(';');
+        let pdiv = document.createElement("div");
+        pdiv.innerHTML = "Patient: <b>"+id[1]+", "+id[2]+"</b>   DOB: "+id[3] ;
+        li.appendChild(pdiv) ;
+        return li ;
+    }
+
+    liLabel( comment ) {
+        let li = document.createElement("li") ;
+
+        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("editthecomment")[0].cloneNode(true) );
+
+        let cdiv = document.createElement("div");
+        cdiv.innerHTML = commentTitle(comment) ;
+        li.appendChild(cdiv) ;
+
+        return li ;
+    }
+
+    liComment( comment, label ) {
+        console.log(label);
+        let li = document.createElement("li") ;
+        li.classList.add("odd") ;
+        li.setAttribute("data-id", comment.id ) ;
+        if ( commentId == comment.id ) {
+            li.classList.add("choice") ;
+        }
+        if ( "doc" in comment ) {
+            console.log(comment.doc);
+            if ("_attachments" in comment.doc ){
+                let img = document.createElement("img") ;
+                img.className = "fullimage" ;
+                img.src = URL.createObjectURL(comment.doc._attachments.image.data) ;
+                li.appendChild(img);
+            }
+            if ("text" in comment.doc ){
+                let div = document.createElement("div") ;
+                console.log(div) ;
+                console.log(comment.doc.text);
+                div.innerText = comment.doc.text ;
+                li.addEventListener( 'dblclick', (e) => {
+                    editBar.startcommentedit( li ) ;
+                }) ;
+                li.appendChild(div);
+            }
+        }    
+        
+        li.addEventListener( 'click', (e) => {
+            console.log(comment.id) ;
+            selectComment( comment.id ) ;
+        }) ;
+        label.getElementsByClassName("editthecomment")[0].onclick =
+            (e) => {
+            editBar.startcommentedit( li ) ;
+        } ;
+
+        return li ;
+    }
+
 }
 
 function makeCommentId() {
@@ -763,48 +853,31 @@ function makeCommentId() {
     return [ patientId, "Comment" , d ].join(";") ;
 }
 
-function updateComment() {
-    if ( commentId ) {
-        db.get( commentId ).then( function(doc) {
-            commentEdit(doc) ;
-        }).catch( function(err) {
-            console.log(err);
-            commentEdit(null) ;
-        }) ;
-    } else {
-        commentEdit(null) ;
-    }
+function commentNew() {
+    console.log(document.getElementById("commentNewLabel")) ;
+    document.getElementById("commentNewLabel").innerHTML = commentTitle(null)  ;
+    console.log("new comment") ;
+    let d = document.getElementById("commentNewField") ;
+    d.innerHTML = "" ;
+    editBar.startcommentedit( d ) ;
 }
 
-function commentEdit(doc) {
-    console.log(document.getElementById("commentEditLabel")) ;
-    document.getElementById("commentEditLabel").innerHTML = commentTitle(doc)  ;
-    if (doc) {
-        console.log(doc) ;
-        console.log("old comment") ;
-        if ( "_attachments" in doc ) {
-            document.getElementById("commentrEditImage").src = URL.createObjectURL(doc._attachments.image) ;
-        }
-        document.getElementById("commentEditField").innerText = doc.text ;
-    } else {
-        console.log("new comment") ;
-        document.getElementById("commentEditField").innerText = "" ;
-    }
-}
-
-function saveComment() {
+function saveComment( plaintext ) {
+    console.log("saveComment") ;
     if ( commentId ) {
+        // existing comment
         db.get(commentId).then( function(doc) {
-            doc.text = document.getElementById("commentEditField").innerText ;
+            doc.text = plaintext ;
             db.put( doc ) ;
         }).catch( function(err) {
-            consult.log(err) ;
+            console.log(err) ;
         });
     } else {
+        // new comment
         db.put({
             _id: makeCommentId(),
             author: userName,
-            text: document.getElementById("commentEditField").innerText,
+            text: plaintext,
         }).catch( function(err) {
             console.log(err);
         });
@@ -877,49 +950,49 @@ function saveImage() {
 }
 
 function setUserButton() {
-	if ( userName ) {
-		document.getElementById("userbutton").innerText = "User: "+userName ;
-	} else {    
-		document.getElementById("userbutton").innerText = "User?" ;
-	}
+    if ( userName ) {
+        document.getElementById("userbutton").innerText = "User: "+userName ;
+    } else {    
+        document.getElementById("userbutton").innerText = "User?" ;
+    }
 }
 
 function setUser() {
-	let un = prompt( "User name:",userName ) ;
-	if ( un ) {
-		userName = un ;
-		setCookie( "userName", un ) ;
-		setUserButton() ;
-	}
+    let un = prompt( "User name:",userName ) ;
+    if ( un ) {
+        userName = un ;
+        setCookie( "userName", un ) ;
+        setUserButton() ;
+    }
 }
 
 userName = getCookie( "userName" ) ;
 setUserButton() ;
-		  
+          
 
 function setRemoteButton() {
-	if ( remoteCouch ) {
-		document.getElementById("remotebutton").innerText = "Remote CouchDB: "+remoteCouch ;
-	} else {    
-		document.getElementById("remotebutton").innerText = "Remote CouchDB: http://host:5984" ;
-	}
+    if ( remoteCouch ) {
+        document.getElementById("remotebutton").innerText = "Remote CouchDB: "+remoteCouch ;
+    } else {    
+        document.getElementById("remotebutton").innerText = "Remote CouchDB: http://host:5984" ;
+    }
 }
 
 function setRemote() {
-	let un = prompt( "Remote CouchDB address:", remoteCouch ) ;
-	let rem = remoteCouch ;
-	if ( un ) {
+    let un = prompt( "Remote CouchDB address:", remoteCouch ) ;
+    let rem = remoteCouch ;
+    if ( un ) {
 
-		setCookie( "remoteCouch", un ) ;
-		setRemoteButton() ;
-		// start page over with new remote
-		window.location.reload(false) ;
-	}
+        setCookie( "remoteCouch", un ) ;
+        setRemoteButton() ;
+        // start page over with new remote
+        window.location.reload(false) ;
+    }
 }
 
 remoteCouch = getCookie( "remoteCouch" ) ;
 setRemoteButton() ;
-		  
+          
 
 
 // Pouchdb routines
@@ -938,33 +1011,33 @@ setRemoteButton() ;
                 displayStateChange();
                 break ;
             case "PatientEdit":
-            case "CommentEdit":
+            case "CommentNew":
                 break ;
         }
     });
 
-	// Initialise a sync with the remote server
-	function sync() {
-		let synctext = document.getElementById("syncstatus") ;
-		synctext.innerText = "Sync status: syncing..." ;
-		console.log(remoteCouch+'/mdb') ;
-		db.sync( remoteCouch+'/mdb', {
-			live: true,
-			retry: true
-		}).on('change', function(info) {
-			synctext.innerText = "Sync status: changed";
-		}).on('paused', function(err) {
-			synctext.innerText = "Sync status: paused";
-		}).on('active', function() {
-			synctext.innerText = "Sync status: active";
-		}).on('denied', function(err) {
-			synctext.innerText = "Sync status: denied "+err;
-		}).on('complete', function(info) {
-			synctext.innerText = "Sync status: complete";
-		}).on('error', function(err) {
-			synctext.innerText = "Sync status: error "+err ;
-		});
-	}
+    // Initialise a sync with the remote server
+    function sync() {
+        let synctext = document.getElementById("syncstatus") ;
+        synctext.innerText = "Sync status: syncing..." ;
+        console.log(remoteCouch+'/mdb') ;
+        db.sync( remoteCouch+'/mdb', {
+            live: true,
+            retry: true
+        }).on('change', function(info) {
+            synctext.innerText = "Sync status: changed";
+        }).on('paused', function(err) {
+            synctext.innerText = "Sync status: paused";
+        }).on('active', function() {
+            synctext.innerText = "Sync status: active";
+        }).on('denied', function(err) {
+            synctext.innerText = "Sync status: denied "+err;
+        }).on('complete', function(info) {
+            synctext.innerText = "Sync status: complete";
+        }).on('error', function(err) {
+            synctext.innerText = "Sync status: error "+err ;
+        });
+    }
 
     if (remoteCouch) {
         sync();
