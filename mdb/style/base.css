@@ -69,7 +69,10 @@ ul {
   background: red;
   float: right;
 }
-
+.commenttext {
+  min-height: 1em;
+}
+  
 body {
   font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.4em;
@@ -159,7 +162,7 @@ footer {
 	width: auto ;
   }
 }
-#imageInput {
+#imageInput, #imageBar {
   display:none;
 }
 .editable {

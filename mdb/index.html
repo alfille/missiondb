@@ -75,13 +75,16 @@
             --->
             <button type="button" onclick="editBar.saveedit()"><span><B>Save</B></span></button>
             <button type="button" onclick="commentCancel()"><span><B>Cancel</B></span></button>
+            <button type="button" onclick="editBar.getImage()" id="tbarpic"><span><B>&#128247;</B></span></button>            
+            <button type="button" onclick="removeImage()" id="tbarxpic"><span><B>Remove image</B></span></button>
             <button type="button" onclick="editBar.deleteedit()" id="tbardel"><span><B>Delete</B></span></button>
+            <input type="file" accept="image/*" id="imageBar" onchange="editBar.handleImage()" capture="environment">
         </div>
         <div id="commentbuttons" >
             <button class="returnfromcomment libutton" type="button" onclick="showPatientOpen()">Return</button>
             <button class="editthecomment libutton" type="button">Edit</button>
             <button class="createthecomment libutton" type="button" onclick="showCommentNew()">New Comment</button>
-            <button class="createtheimage libutton" type="button">New Image</button>
+            <button class="createtheimage libutton" type="button" onclick="showCommentImage()">New Image</button>
             </div>
     </div>
     </section>

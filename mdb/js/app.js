@@ -25,7 +25,6 @@ class Tbar {
         this.text = null ;
         this.toolbar = document.getElementById("editToolbar") ;
         this.toolbar.parentNode.removeChild(this.toolbar) ;
-        this.comment = 1 ;
     }
 
     active() {
@@ -34,7 +33,7 @@ class Tbar {
 
     startedit( existingdiv, savefunc, deletefunc ) {
         // false if already exists
-        this.comment += 1 ;
+        this.comment = false ;
         if ( !this.active() ) {
             this.savefunc = savefunc ;
             this.deletefunc = deletefunc ;
@@ -57,22 +56,52 @@ class Tbar {
         return false ;
     }
 
-    startcommentedit( element ) {
-        this.comment = 0 ; // reset counter
+    startcommentedit( existingdiv ) {
+        this.comment = true ;
         if ( this.active() ) {
             return false ;
         }
         if ( commentId ) {
-            selectComment(element.getAttribute("data-id")) ;
+            selectComment(existingdiv.getAttribute("data-id")) ;
             let li = document.getElementById("CommentList").getElementsByClassName("libutton");
             for ( let l of li ) {
                 l.disabled = true ;
             }
-            return this.startedit( element, saveComment, deleteComment ) ;
+            this.deletefunc = deleteComment ;
         } else {
             unselectComment() ;
-            return this.startedit( element, saveComment, null ) ;
+            this.deletefunc = null ;
         }
+        this.savefunc = saveComment ;
+        this.parent = existingdiv ;
+        this.img = this.parent.querySelector( ".fullimage" ) ;
+        this.ctext = this.parent.querySelector( ".commenttext" ) ;
+        this.toolbar.querySelector("#tbarxpic").disabled = (this.img == null) ;
+        this.toolbar.querySelector("#tbardel").style.visibility = (this.deletefunc!=null) ? "visible" : "none" ;
+        this.text = this.ctext.innerText || "" ;
+
+        this.imageslot = document.createElement("img") ;
+        this.imageslot.className = "fullimage" ;
+        this.newimage = false ;
+        if ( this.img ) {
+            this.imageslot.src = this.img.src ;
+        } else {
+            this.imageslot.style.visibility = "none" ;
+        }
+
+        this.parent.innerHTML = "" ;
+
+        this.textdiv = document.createElement("div") ;
+        this.textdiv.innerText = this.text ;
+        this.textdiv.contentEditable = true ;
+        this.textdiv.id = "textdiv" ;
+
+        this.parent.appendChild( this.imageslot ) ;
+        this.parent.appendChild(this.toolbar) ;
+        this.parent.appendChild(this.textdiv) ;
+
+        this.toolbar = null ;
+        return true ;
     }
 
     saveedit() {
@@ -94,16 +123,21 @@ class Tbar {
     canceledit() {
         if ( this.active() ) {
             this.toolbar = document.getElementById("editToolbar") ;
-            this.parent.removeChild( this.toolbar ) ;
-            this.parent.removeChild( this.textdiv ) ;
+            this.parent.innerHTML = ""
             this.textdiv = null ;
-            this.parent.innerText = this.text ;
         }
-        if ( this.comment < 2 ) {
+        if ( this.comment ) {
             let li = document.getElementById("CommentList").getElementsByClassName("libutton");
             for ( let l of li ) {
                 l.disabled = false ;
             }
+            if ( this.img ) {
+                this.parent.appendChild( this.img ) ;
+            }
+            this.ctext.innerText = this.text ;
+            this.parent.appendChild( this.ctext ) ;
+        } else {
+            this.parent.innerText = this.text ;
         }
     }
 
@@ -115,6 +149,23 @@ class Tbar {
             this.text = null ;
         }
     }
+
+    getImage() {
+        document.getElementById("imageBar").click() ;
+    }
+
+    handleImage() {
+        const files = document.getElementById('imageBar')
+        const image = files.files[0];
+        this.imageslot.src = URL.createObjectURL(image) ;
+        this.imageslot.style.visibility = "visible" ;
+        this.newimage = true ;
+    }
+
+    removeImage() {
+        this.imageslot.src = null ;
+        this.imageslot.style.visibility = "none" ;
+        this.newimage = true ;
 }
 
 var editBar = new Tbar() ;        
@@ -800,22 +851,22 @@ class CommentList {
         }
         if ( "doc" in comment ) {
             console.log(comment.doc);
+
             if ("_attachments" in comment.doc ){
                 let img = document.createElement("img") ;
                 img.className = "fullimage" ;
                 img.src = URL.createObjectURL(comment.doc._attachments.image.data) ;
                 li.appendChild(img);
             }
-            if ("text" in comment.doc ){
-                let div = document.createElement("div") ;
-                console.log(div) ;
-                console.log(comment.doc.text);
-                div.innerText = comment.doc.text ;
-                li.addEventListener( 'dblclick', (e) => {
-                    editBar.startcommentedit( li ) ;
-                }) ;
-                li.appendChild(div);
-            }
+
+            let textdiv = document.createElement("div") ;
+            console.log(comment.doc.text);
+            textdiv.innerText = ("text" in comment.doc) ? comment.doc.text : "" ;
+            li.addEventListener( 'dblclick', (e) => {
+                editBar.startcommentedit( li ) ;
+            }) ;
+            textdiv.className = "commenttext" ;
+            li.appendChild(textdiv);
         }    
         
         li.addEventListener( 'click', (e) => {
