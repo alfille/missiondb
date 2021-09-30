@@ -39,7 +39,7 @@ class Tbar {
             this.savefunc = savefunc ;
             this.deletefunc = deletefunc ;
             this.parent = existingdiv ;
-            this.toolbar.querySelector("#tbardel").disabled = (deletefunc===null)
+            this.toolbar.querySelector("#tbardel").style.visibility = (deletefunc!=null) ? "visible" : "none" ;
             this.text = this.parent.innerText || "" ;
 
             this.parent.innerHTML = "" ;
@@ -58,11 +58,11 @@ class Tbar {
     }
 
     startcommentedit( element ) {
-        this.comment = 0 ;
+        this.comment = 0 ; // reset counter
         if ( this.active() ) {
             return false ;
         }
-        if ( element ) {
+        if ( commentId ) {
             selectComment(element.getAttribute("data-id")) ;
             let li = document.getElementById("CommentList").getElementsByClassName("libutton");
             for ( let l of li ) {
@@ -243,9 +243,9 @@ function displayStateChange() {
                 } else {
                     unselectPatient() ;
                 }
-                }).catch( function(err) {
+            }).catch( function(err) {
                     console.log(err);
-                });
+            });
             break ;
             
         case "PatientOpen":
@@ -397,13 +397,6 @@ class sortTable {
 
         // sort
         rowsArray.sort(compare);
-        rowsArray.forEach( function( v, i ) {
-            if (i%2 == 1 ) {
-                v.classList.add('odd') ;
-            } else {
-                v.classList.remove('odd') ;
-            }
-        });
 
         tbody.append(...rowsArray);
     }
@@ -444,16 +437,11 @@ class dataTable extends sortTable {
         let tbody = this.tname.querySelector('tbody') ;
         tbody.innerHTML = "" ;
         let collist = this.collist ;
-        let n = 0
         doclist.forEach( function(doc) {
             //console.log(doc);
             if (doc.id.split(";").length < 5 ) {
-                let row = tbody.insertRow(n) ;
+                let row = tbody.insertRow(-1) ;
                 let record = doc.doc ;
-                n += 1 ;
-                if ( n%2 == 1 ) {
-                    row.classList.add('odd') ;
-                }
                 row.setAttribute("data-id",record._id) ;
                 if (record._id == patientId) {
                     row.classList.add("choice") ;
@@ -501,7 +489,6 @@ class FieldList {
             ul.appendChild(li) ;
 
             li = document.createElement("li") ;
-            li.classList.add("odd") ;
             ul.appendChild(li)
         }
         this.ul = ul ;
@@ -775,17 +762,15 @@ class CommentList {
 
     lifirst() {
         let li = document.createElement("li") ;
+        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("createthecomment")[0].cloneNode(true) ) ;
+        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("createtheimage")[0].cloneNode(true) ) ;
+        li.appendChild( document.createTextNode("Notes and Comments")) ;
         li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("returnfromcomment")[0].cloneNode(true) ) ;
-        li.appendChild(document.createTextNode("Notes and Comments")) ;
         return li ;
     }
 
     lisecond() {
         let li = document.createElement("li") ;
-        li.classList.add("odd") ;
-
-        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("createthecomment")[0].cloneNode(true) ) ;
-        li.appendChild( document.getElementById("commentbuttons").getElementsByClassName("createtheimage")[0].cloneNode(true) ) ;
 
         let id = patientId.split(';');
         let pdiv = document.createElement("div");
@@ -809,7 +794,6 @@ class CommentList {
     liComment( comment, label ) {
         console.log(label);
         let li = document.createElement("li") ;
-        li.classList.add("odd") ;
         li.setAttribute("data-id", comment.id ) ;
         if ( commentId == comment.id ) {
             li.classList.add("choice") ;
@@ -862,6 +846,13 @@ function commentNew() {
     editBar.startcommentedit( d ) ;
 }
 
+function commentCancel() {
+    editBar.canceledit() ;
+    if ( displayState != "CommentList" ) {
+        showCommentList() ;
+    }
+}
+
 function saveComment( plaintext ) {
     console.log("saveComment") ;
     if ( commentId ) {
@@ -869,8 +860,11 @@ function saveComment( plaintext ) {
         db.get(commentId).then( function(doc) {
             doc.text = plaintext ;
             db.put( doc ) ;
-        }).catch( function(err) {
+        }).then( x => {
+            showCommentList() ;
+        }).catch( err => {
             console.log(err) ;
+            showCommentList() ;
         });
     } else {
         // new comment
@@ -878,11 +872,13 @@ function saveComment( plaintext ) {
             _id: makeCommentId(),
             author: userName,
             text: plaintext,
-        }).catch( function(err) {
+        }).then( x => {
+            showCommentList() ;
+        }).catch( err => {
             console.log(err);
+            showCommentList() ;
         });
     }
-    showCommentList() ;
 }
   
 function CommentImage() {

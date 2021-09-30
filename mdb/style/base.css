@@ -27,13 +27,13 @@ tr, li {
   background: #CCCCFF ;
   min-height: 1em;
 }
-tr.odd, li.odd {
+tr:nth-child(odd), li:nth-child(odd) {
   background: #E6F2FF ;
 }
 tr.choice, li.choice {
   background: gold !important;
 }
-tr.odd:hover, li.odd:hover {
+tr:nth-child(odd):hover, li:nth-child(even):hover {
   background: lightyellow ;
 }
 
@@ -117,16 +117,11 @@ body {
   display: none ;
 }
 
-#commentListDiv li {
+#commentListDiv li:nth-child(odd) {
   font-style: italic;
   display: flex;
   width: 100%;
 }
-#commentListDiv li.odd {
-  font-style: normal;
-  display: block;
-}
-
 #patientEditDiv {
   display: none ;
 }
@@ -184,6 +179,7 @@ footer {
 }
 #editToolbar span {
     cursor:pointer;
+    background: inherit;
 }
 #editToolbar span:hover {
     color: red;
@@ -202,4 +198,14 @@ footer {
   background: gold;
   min-height: 1em;
 }
-
+#tbardel {
+  background: red;
+  float: right;
+}
+#tbardel span:hover {
+  color: white;
+}
+#tbardel:disabled {
+  background: #ffffcc;
+  color: grey;
+}
