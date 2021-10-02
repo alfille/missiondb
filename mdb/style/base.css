@@ -1,7 +1,10 @@
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
+}
+header {
+  position: fixed;
+  z-index: -1;
 }
 table {
   border-collapse: collapse;
@@ -41,6 +44,7 @@ ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  overflow: auto;
 }
 
 .divbutton {
@@ -139,10 +143,6 @@ footer {
   font-size: 12px;
 }
 
-.hidden{
-    display:none;
-}
-
 #syncstatus {
   background: paleblue;
   border: 4px;
@@ -162,7 +162,7 @@ footer {
 	width: auto ;
   }
 }
-#imageInput, #imageBar {
+#imageInput, #imageBar, #imageQ {
   display:none;
 }
 .editable {

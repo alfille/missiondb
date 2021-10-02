@@ -44,6 +44,7 @@
       </div>
       <div id="commentImageDiv">
         <input type="file" accept="image/*" id="imageInput" onchange="handleImage()" capture="environment">
+        <input type="file" accept="image/*" id="imageQ" onchange="quickImage2()" capture="environment">
         <button type="button" class="divbutton" onclick="getImage()">&#128247; or &#119809;
  u&#818; Gallery</button>
         <button type="button" class="divbutton" onclick="showCommentList()">Cancel</button>
@@ -75,16 +76,16 @@
             --->
             <button type="button" onclick="editBar.saveedit()"><span><B>Save</B></span></button>
             <button type="button" onclick="commentCancel()"><span><B>Cancel</B></span></button>
-            <button type="button" onclick="editBar.getImage()" id="tbarpic"><span><B>&#128247;</B></span></button>            
-            <button type="button" onclick="removeImage()" id="tbarxpic"><span><B>Remove image</B></span></button>
-            <button type="button" onclick="editBar.deleteedit()" id="tbardel"><span><B>Delete</B></span></button>
+            <button type="button" onclick="editBar.getImage()" id="tbarpic" title="Get image"><span><B>&#128247;</B></span></button>            
+            <button type="button" onclick="editBar.removeImage()" id="tbarxpic" title="Remove image"><span><B>&#128473;&#128247;</B></span></button>
+            <button type="button" onclick="editBar.deleteedit()" id="tbardel" title="Delete comment"><span><B>Delete</B></span></button>
             <input type="file" accept="image/*" id="imageBar" onchange="editBar.handleImage()" capture="environment">
         </div>
         <div id="commentbuttons" >
             <button class="returnfromcomment libutton" type="button" onclick="showPatientOpen()">Return</button>
             <button class="editthecomment libutton" type="button">Edit</button>
             <button class="createthecomment libutton" type="button" onclick="showCommentNew()">New Comment</button>
-            <button class="createtheimage libutton" type="button" onclick="showCommentImage()">New Image</button>
+            <button class="createtheimage libutton" type="button" onclick="quickImage()" title="Quick picture">&#128247;</button>
             </div>
     </div>
     </section>

@@ -72,17 +72,23 @@ class Tbar {
             unselectComment() ;
             this.deletefunc = null ;
         }
-        this.savefunc = saveComment ;
         this.parent = existingdiv ;
         this.img = this.parent.querySelector( ".fullimage" ) ;
         this.ctext = this.parent.querySelector( ".commenttext" ) ;
+        if ( this.ctext ) {
+            this.text = this.ctext.innerText || "" ;
+        } else {
+            this.ctext = document.createElement("div") ;
+            this.ctext.className = "commenttext" ;
+            this.text = "" ;
+        }
+            
         this.toolbar.querySelector("#tbarxpic").disabled = (this.img == null) ;
         this.toolbar.querySelector("#tbardel").style.visibility = (this.deletefunc!=null) ? "visible" : "none" ;
-        this.text = this.ctext.innerText || "" ;
 
         this.imageslot = document.createElement("img") ;
         this.imageslot.className = "fullimage" ;
-        this.newimage = false ;
+        this.file0 = null ;
         if ( this.img ) {
             this.imageslot.src = this.img.src ;
         } else {
@@ -107,17 +113,15 @@ class Tbar {
     saveedit() {
         if ( this.active() ) {
             this.text = this.textdiv.innerText ;
+            console.log(this.text);
+            this.img = this.imageslot ;
             this.canceledit() ;
-            this.savefunc( this.text ) ;
+            if ( this.comment ) {
+                saveComment( this.text, this.file0 ) ;
+            } else {
+                this.savefunc( this.text ) ;
+            }
         }
-    }
-
-    undiv( element ) {
-        while ( element.nodeName == "DIV" ) {
-            console.log( element ) ;
-            element = element.firstChild ;
-        }
-        return element ;
     }
 
     canceledit() {
@@ -156,16 +160,17 @@ class Tbar {
 
     handleImage() {
         const files = document.getElementById('imageBar')
-        const image = files.files[0];
-        this.imageslot.src = URL.createObjectURL(image) ;
+        this.file0 = files.files[0];
+        this.imageslot.src = URL.createObjectURL(this.file0) ;
         this.imageslot.style.visibility = "visible" ;
-        this.newimage = true ;
+        document.getElementById("tbarxpic").disabled = false ;
     }
 
     removeImage() {
-        this.imageslot.src = null ;
         this.imageslot.style.visibility = "none" ;
-        this.newimage = true ;
+        this.file0 = "remove" ;
+        document.getElementById("tbarxpic").disabled = true ;
+    }
 }
 
 var editBar = new Tbar() ;        
@@ -795,7 +800,6 @@ class CommentList {
         plusComments(true).then(( function(docs) {
             console.log(docs);
             docs.rows.forEach(( function(comment, i) {
-                console.log(comment);
 
                 let li1 = this.liLabel(comment) ;
                 this.ul.appendChild( li1 ) ;
@@ -843,14 +847,12 @@ class CommentList {
     }
 
     liComment( comment, label ) {
-        console.log(label);
         let li = document.createElement("li") ;
         li.setAttribute("data-id", comment.id ) ;
         if ( commentId == comment.id ) {
             li.classList.add("choice") ;
         }
         if ( "doc" in comment ) {
-            console.log(comment.doc);
 
             if ("_attachments" in comment.doc ){
                 let img = document.createElement("img") ;
@@ -860,7 +862,6 @@ class CommentList {
             }
 
             let textdiv = document.createElement("div") ;
-            console.log(comment.doc.text);
             textdiv.innerText = ("text" in comment.doc) ? comment.doc.text : "" ;
             li.addEventListener( 'dblclick', (e) => {
                 editBar.startcommentedit( li ) ;
@@ -870,7 +871,6 @@ class CommentList {
         }    
         
         li.addEventListener( 'click', (e) => {
-            console.log(comment.id) ;
             selectComment( comment.id ) ;
         }) ;
         label.getElementsByClassName("editthecomment")[0].onclick =
@@ -904,12 +904,29 @@ function commentCancel() {
     }
 }
 
-function saveComment( plaintext ) {
+function saveComment( plaintext, file0 ) {
     console.log("saveComment") ;
+    console.log(plaintext) ;
+    console.log(typeof plaintext) ;
+    console.log(file0) ;
     if ( commentId ) {
         // existing comment
         db.get(commentId).then( function(doc) {
             doc.text = plaintext ;
+            if ( file0 === "remove") {
+                if ( "_attachments" in doc ) {
+                    console.log(doc);
+                    delete doc["_attachments"] ;
+                    console.log(doc);
+                }
+            } else if (file0 ) {
+                doc._attachments = {
+                    image: {
+                        content_type: file0.type,
+                        data: file0,
+                    }
+                }
+            }
             db.put( doc ) ;
         }).then( x => {
             showCommentList() ;
@@ -919,11 +936,20 @@ function saveComment( plaintext ) {
         });
     } else {
         // new comment
-        db.put({
+        let doc = {
             _id: makeCommentId(),
             author: userName,
             text: plaintext,
-        }).then( x => {
+        } ;
+        if (file0 && file0 !== "remove") {
+            doc._attachments = {
+                image: {
+                    content_type: file0.type,
+                    data: file0,
+                }
+            }
+        }                
+        db.put(doc).then( x => {
             showCommentList() ;
         }).catch( err => {
             console.log(err);
@@ -942,15 +968,43 @@ function CommentImage() {
     console.log("commentimage");
 }
 
+function quickImage() {
+    document.getElementById("imageQ").click() ;
+}
+
+function quickImage2() {
+    const files = document.getElementById('imageQ') ;
+    const image = files.files[0] ;
+
+    db.put( {
+        _id: makeCommentId(),
+        text: "",
+        author: userName,
+        _attachments: {
+            image: {
+                content_type: image.type,
+                data: image,
+            }
+        }
+    }).then( function(doc) {
+        showCommentList() ;
+    }).catch( function(err) {
+        console.log(err) ;
+        showCommentList() ;
+    }) ;
+}
+
 function getImage() {
     let inp = document.getElementById("imageInput") ;
     inp.click() ;
+    console.log("CLICKED");
 }
     
    
 //let urlObject;
 function handleImage() {
     const files = document.getElementById('imageInput')
+    console.log(files.length);
     const image = files.files[0];
 
 
