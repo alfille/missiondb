@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# Website update from git
+
+# Paul H Alfille
+
+# updates code from github in Gdir but not actuallly needed
+Gdir="https://github.com/alfille/emission"
+
+# into website Wdir
+Wdir=/srv/www
+
+# clone if needed
+git clone https://github.com/alfille/emission $Wdir
+
+cd $Wdir
+git pull
+
+# restart web server
+systemctl restart lighttpd.service

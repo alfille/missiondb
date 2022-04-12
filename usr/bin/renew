@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+# SSL certificate renewal
+certbot renew
+
+# Paul H Alfille
+# Updates certificate (certbot from LetsEncrypt) in SSSLdir
+#  for couchdb (in Ldir)
+#  and for lightthpd (in Cdir)
+
+# files to move and concatenate
+SSLdir=/etc/letsencrypt/live/emissionsystem.org
+Ldir=/etc/lighttpd/ssl
+Cdir=/opt/couchdb/etc/ssl
+for f in chain.pem cert.pem fullchain.pem privkey.pem
+do
+  cp $SSLdir/$f $Ldir/$f
+  cp $SSLdir/$f $Cdir/$f
+done
+cat $Ldir/privkey.pem $Ldir/fullchain.pem > $Ldir/concatchain.pem
+
+# Permissions
+chmod 0600 $Ldir/concatchain.pem
+chown www-data:www-data -R $Ldir 
+chmod 0600 $Cdir/cert.pem
+chown couchdb:couchdb -R $Cdir 
+
+# restart web server
+systemctl restart lighttpd.service
