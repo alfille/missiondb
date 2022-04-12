@@ -17,8 +17,6 @@ A spreadsheet was not adequate -- poor phone interface, poor support for images,
 * [Security considerations](https://github.com/alfille/missiondb/security.md)
 * Server setup
   * [Couchdb setup](https://github.com/alfille/missiondb/couchdb_config.md) including firewall setup
-  * 
-  * 
 
 ## Context
 This is part of of the [eMission](https://emissionsystem.org) Medical Mission database by Paul Alfille.
