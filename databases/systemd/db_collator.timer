@@ -7,11 +7,11 @@
 [Unit]
 Description=Couchdb database collator timer
 Requires=db_collator.service
+Wants=couchdb.service
 
 [Timer]
 OnBootSec=30 m
 Unit=db_collator.service
 
 [Install]
-After=couchdb.service
 WantedBy=timers.target
