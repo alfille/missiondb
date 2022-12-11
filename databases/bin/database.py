@@ -45,8 +45,9 @@ class Couchdb:
         self.dblist = [self.server[db] for db in self.server if db[0] != '_' and db!="databases" ]
         self.serverset = { '0'+db.name for db in self.dblist }
         if self.show:
-            print( self.dblist )
-            print( self.serverset )
+            print("From server directory")
+            print( "Databases",self.dblist )
+            print( "id names",self.serverset )
 
     def create_db(self):
         # create or open database of databases called 'databases' 
@@ -56,7 +57,8 @@ class Couchdb:
             self.databases = self.server['databases']
         self.dbset = { doc for doc in self.databases }
         if self.show:
-            print(self.dbset)
+            print("From databases keys")
+            print("id names",self.dbset)
 
     def delete_extra(self):
         # delete stale entries in the database
