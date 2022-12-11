@@ -1,0 +1,17 @@
+# timer to run database indexer
+# (creates a database of Couchdb databases in a database called "databases")
+# {c} 2022 Paul H Alfille
+# Part of emissionsystem project
+# original in http://github.com/alfille/mikssiondb/databases/systemd
+
+[Unit]
+Description=Couchdb database collator timer
+Requires=db_collator.service
+
+[Timer]
+OnBootSec=30 m
+Unit=db_collator.service
+
+[Install]
+After=couchdb.service
+WantedBy=timers.target

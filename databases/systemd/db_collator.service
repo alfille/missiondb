@@ -1,0 +1,17 @@
+# service to run database indexer
+# (creates a database of Couchdb databases in a database called "databases")
+# {c} 2022 Paul H Alfille
+# Part of emissionsystem project
+# original in http://github.com/alfille/mikssiondb/databases/systemd
+
+[Unit]
+Description=Couchdb Database Collator
+Wants=db_collator.timer couchdb.service
+
+[Service]
+Type=OneShot
+ExecStart=/usr/bin/python3 /usr/bin/db_collator.py -p password
+
+[Install]
+WantedBy=multi-user.target
+
