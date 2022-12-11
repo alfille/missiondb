@@ -7,10 +7,6 @@
 import couchdb
 import argparse # for parsing the command line
 
-#server = couchdb.Server( 'https://admin:FuzzySofa@emissionsystem.org:6984/' )
-
-#db_list = [server[db] for db in server if db[0] != '_']        
-
 class Couchdb:
     def __init__(self,args):
         # args holds parsed command line args
