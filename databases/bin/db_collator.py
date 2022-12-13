@@ -18,7 +18,7 @@ class Couchdb:
             if self.show:
                 print(s)
             self.server = couchdb.Server( s)
-            self.address = s+":"+args.port
+            self.address = s + ":" + str(args.port)
         else:
             if args.port==None:
                 args.port=5984
@@ -26,7 +26,7 @@ class Couchdb:
             if self.show:
                 print(s)
             self.server = couchdb.Server( s)
-            self.address = s+":"+args.port
+            self.address = s + ":" + str(args.port)
 
     def test(self):
         try:
