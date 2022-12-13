@@ -18,6 +18,7 @@ class Couchdb:
             if self.show:
                 print(s)
             self.server = couchdb.Server( s)
+            self.address = s+":"+args.port
         else:
             if args.port==None:
                 args.port=5984
@@ -25,6 +26,7 @@ class Couchdb:
             if self.show:
                 print(s)
             self.server = couchdb.Server( s)
+            self.address = s+":"+args.port
 
     def test(self):
         try:
@@ -69,6 +71,7 @@ class Couchdb:
     def server_doc(self,db):
         doc = {
             'dbname': db.name,
+            'server': self.address,
             '_id': '0'+db.name,
             }
         sdoc = db.get('m;0;;;')
