@@ -96,7 +96,7 @@ class Couchdb:
                 ## check and possibly update
                 need_to_save = False
                 for k,v in s_doc.items():
-                    if db_doc[k] != v:
+                    if ( k not in db_doc) or db_doc[k] != v:
                         db_doc[k] = v
                         need_to_save = True
                 if need_to_save:
