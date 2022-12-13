@@ -14,17 +14,19 @@ class Couchdb:
         if args.ssl:
             if args.port==None:
                 args.port=6984
-            self.address = 'https://'+args.admin+':'+args.password+'@'+args.couchdb+':'+str(args.port)+'/'
+            s = 'https://'+args.admin+':'+args.password+'@'+args.couchdb+':'+str(args.port)+'/'
             if self.show:
-                print(self.address)
-            self.server = couchdb.Server( self.address )
+                print(s)
+            self.address = 'https://'+args.couchdb+':'+str(args.port)
+            self.server = couchdb.Server( s )
         else:
             if args.port==None:
                 args.port=5984
-            self.address = 'http://'+args.admin+':'+args.password+'@'+args.couchdb+':'+str(args.port)+'/'
+            s = 'http://'+args.admin+':'+args.password+'@'+args.couchdb+':'+str(args.port)+'/'
             if self.show:
-                print(self.address)
-            self.server = couchdb.Server( self.address )
+                print(s)
+            self.address = 'http://'+args.couchdb+':'+str(args.port)
+            self.server = couchdb.Server( s )
 
     def test(self):
         try:
