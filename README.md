@@ -1,7 +1,7 @@
 # missiondb
 
 ## Briefly
-This is the supporting project for []eMission](https://github.com/alfille/emission), a database system for keeping track of medical mission care. 
+This is the supporting project for [eMission](https://github.com/alfille/emission), a database system for keeping track of medical mission care. You can see [eMission in action](https://emissionsystem.org) or we the [eMission documentation](https://emissionsystem.org/book/index.html).
 
 ## History
 Originally missiondb hosted the application, but a better name __eMission__ with an available domain name [eMissionSystem](https://emissionsystem.org) was selected. The [eMission repository](https://github.com/alfille/emission) now hosts the application and this site hosts supporting documentation and scripts for backend management.
